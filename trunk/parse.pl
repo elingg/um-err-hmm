@@ -1,7 +1,15 @@
 #!/usr/local/bin/perl
 
-open ( FILE, "<ea980129-split001.ag.xml" ) || die "Unable to open file 'inputfile' <$!> \n";
-open ( OUTFILE, ">>intervals.txt" ) || die "Unable to open file 'outputfile' <$!> \n";
+
+@files = <*>;
+foreach $file (@files)
+{
+if ($file =~ /.*xml/)
+{
+open ( FILE, $file ) || die "Unable to open file 'inputfile' <$!> \n";
+@split1 = split(/-/,$file);
+$output = "intervals" . $split1[0] . ".txt";
+open ( OUTFILE, ">>$output" ) || die "Unable to open file 'outputfile' <$!> \n";
 
 my $test=0;
 	while(my $line = <FILE>)
@@ -21,7 +29,8 @@ close(FILE);
 print $test;
 print "\n";
 
-open ( FILE, "<ea980129-split001.ag.xml" ) || die "Unable to open file 'inputfile' <$!> \n";
+open ( FILE, $file ) || die "Unable to open file 'inputfile' <$!> \n";
+
 
 my $test=0;
         while(my $line = <FILE>)
@@ -43,3 +52,6 @@ my $test=0;
         }
 
 close(FILE);
+}
+}
+
