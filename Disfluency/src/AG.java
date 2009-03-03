@@ -8,8 +8,9 @@ public class AG {
 	String m_id;
 	String m_timeline;
 	
-	public AG() {}
+	public AG() { m_anchors = new HashMap<String, Double>(); }
 	public AG(String id, String timeline) { 
+		m_anchors = new HashMap<String, Double>();
 		m_id = id; 
 		m_timeline = timeline;
 	}
