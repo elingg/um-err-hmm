@@ -41,5 +41,9 @@ for ifile from input_File_No to numberOfFiles
         	printline 'pitchmax'
         	pitchmin = Get minimum... newlabel newlabel1 Hertz Parabolic
        		 printline 'pitchmin'	
+		fileappend "features.txt" 'pitchmax'
+	        fileappend "features.txt" 'newline$'
+		fileappend "features.txt" 'pitchmin'
+	        fileappend "features.txt" 'newline$'
 	endwhile
 endfor
