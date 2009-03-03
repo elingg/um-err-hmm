@@ -11,6 +11,7 @@ public class Metadata {
 	
 	Double m_startOffsetTime;
 	Double m_endOffsetTime;
+	String m_sentenceType;
 	
 	public Metadata() {
 	}
@@ -54,6 +55,7 @@ public class Metadata {
 		assert(subs.length == 6);
 		m_startOffsetTime = Double.valueOf(subs[3]);
 		m_endOffsetTime = Double.valueOf(subs[4]);
+		m_sentenceType = subs[5]; // question, statement, backchannel
 	}
 	public void setTreeBanking(String tbanking) {
 		m_treeBanking = tbanking;
@@ -69,7 +71,9 @@ public class Metadata {
 	public Double getStopOffsetTime() {
 		return m_endOffsetTime;
 	}
-	
+	public String getSentenceType() {
+		return m_sentenceType;
+	}
 	public static void main(String[] args) {
 
 	}
