@@ -9,6 +9,9 @@ public class Metadata {
 	String  m_treeBanking;
 	String  m_tbComment;
 	
+	public Metadata() {
+	}
+	
 	public Integer getEndOffset() {
 		return m_endOffset;
 	}

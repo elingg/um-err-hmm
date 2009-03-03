@@ -9,8 +9,11 @@ public class SpeakerDoc {
 	void setID(Integer id) { 
 		m_id = id;
 	}
-	public SpeakerDoc() {}
+	public SpeakerDoc() {
+		m_AGSet = new Vector<AG>();
+	}
 	public SpeakerDoc(Integer id, String speaker) {
+		m_AGSet = new Vector<AG>();
 		m_id = id;
 		m_speaker = speaker;
 	}

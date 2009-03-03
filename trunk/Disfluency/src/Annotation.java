@@ -7,7 +7,9 @@ public class Annotation {
 	String m_startAnchor;
 	String m_stopAnchor;
 	HashMap<String, String> m_features;
-	public Annotation() {}
+	public Annotation() {
+		m_features = new HashMap<String, String>();
+	}
 	public String getType() {
 		return m_type;
 	}
