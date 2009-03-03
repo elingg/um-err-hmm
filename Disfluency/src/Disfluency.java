@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.Queue;
 import java.util.Vector;
 
 
@@ -51,29 +50,45 @@ public class Disfluency {
 	    			words.add(word);
 	    		}
 	    		for(int i=0; i< wordanns.size(); i++) {
-	    			Vector<String> prewords = new Vector<String>(argp.m_npregram);
-	    			Vector<String> postwords = new Vector<String>(argp.m_npostgram);
+	    	    	//   for each word
+	    			Annotation ann = wordanns.get(i);
 	    			String empty = new String("$");
+	    	    	
+	    			//    get word
+	    			String word = words.get(i);
+	    	    	
+	    			//    get n-pregrams
+	    			Vector<String> prewords = new Vector<String>(argp.m_npregram);
 	    			for(int ip=0; ip<argp.m_npregram; ip++) {
-	    				prewords.add(ip, empty);
-//	    				if() {
-//	    					
-//	    				}
+	    				int wordindex = i - argp.m_npregram + ip;
+	    				if(wordindex<0) {
+	    					prewords.add(ip, empty);
+	    				} else {
+	    					prewords.add(ip, words.get(i));
+	    				}
 	    			}	    			
+	    	    	//    get n-postgrams
+	    			Vector<String> postwords = new Vector<String>(argp.m_npostgram);
 	    			for(int ip=0; ip<argp.m_npostgram; ip++) {
-	    				postwords.add(ip, empty);
+	    				int wordindex = i + 1 + ip;
+	    				if(wordindex>= words.size()) {
+	    					postwords.add(ip, empty);
+	    				} else {
+	    					postwords.add(ip, words.get(i));
+	    				}
 	    			}
-	    			String postag;
-	    			
+	    	    	//    get POS tag for word
+	    			String pos = ann.getTag();
+	    	    	//    get times that word spans
+	    			Double starttime = sentence.getOffsetTimeForAnchor(ann.getStartAnchor());
+	    			Double endtime = sentence.getOffsetTimeForAnchor(ann.getStopAnchor());
+
+	    			//    get prosodic features given times
+	    			// word, prewords, postwords, pos
+	    			// starttime, endtime
+	    			System.out.printf("Word: %s, POS: %s, StartTime: %g, EndTime: %g\n", word, pos, starttime, endtime);
 	    		}
 	    	}
-	    	//   for each word
-	    	//    get word
-	    	//    get n-pregrams
-	    	//    get n-postgrams
-	    	//    get POS tag for word
-	    	//    get times that word spans
-	    	//    get prosodic features given times
 	    }
 
 	}

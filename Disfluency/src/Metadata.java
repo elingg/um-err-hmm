@@ -9,6 +9,9 @@ public class Metadata {
 	String  m_treeBanking;
 	String  m_tbComment;
 	
+	Double m_startOffsetTime;
+	Double m_endOffsetTime;
+	
 	public Metadata() {
 	}
 	
@@ -47,6 +50,10 @@ public class Metadata {
 	}
 	public void setId(String idstring) {
 		m_id = idstring;
+		String[] subs = m_id.split("_");
+		assert(subs.length == 6);
+		m_startOffsetTime = Double.valueOf(subs[3]);
+		m_endOffsetTime = Double.valueOf(subs[4]);
 	}
 	public void setTreeBanking(String tbanking) {
 		m_treeBanking = tbanking;
@@ -54,6 +61,15 @@ public class Metadata {
 	public void setTBComment(String comment) {
 		m_tbComment = comment;
 	}
+	
+	public Double getStartOffsetTime() {
+		return m_startOffsetTime;
+	}
+	
+	public Double getStopOffsetTime() {
+		return m_endOffsetTime;
+	}
+	
 	public static void main(String[] args) {
 
 	}

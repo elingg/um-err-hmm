@@ -1,7 +1,7 @@
 import java.util.HashMap;
 import java.util.Vector;
 
-public class AG {
+public class AG { // or Sentence
 	Metadata m_meta;
     HashMap<String, Double> m_anchors;
 	Vector<Annotation> m_anns;
@@ -52,6 +52,20 @@ public class AG {
 	
 	public void setMetadata(Metadata meta) {
 		m_meta = meta;
+	}
+	
+	public Double getOffsetTimeForAnchor(String anchor) {
+		Double anchorOffset = this.getAnchorOffset(anchor);
+		
+		Double startOffset = m_meta.getStartOffset().doubleValue();
+		Double endOffset = m_meta.getEndOffset().doubleValue();
+		Double startOffsetTime = m_meta.getStartOffsetTime();
+		Double endOffsetTime = m_meta.getStopOffsetTime();
+		
+		Double anchorOffsetTime = startOffsetTime +
+		(endOffsetTime-startOffsetTime)*(anchorOffset-startOffset)/(endOffset-startOffset);
+
+		return anchorOffsetTime;
 	}
 	
 	public static void main(String[] args) {
