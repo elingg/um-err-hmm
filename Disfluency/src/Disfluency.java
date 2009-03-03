@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Vector;
 
-
 public class Disfluency {
 	public static void main(String[] args) {
 		// get all xml documents in a directory
@@ -82,9 +81,11 @@ public class Disfluency {
 	    	    	//    get times that word spans
 	    			Double starttime = sentence.getOffsetTimeForAnchor(ann.getStartAnchor());
 	    			Double endtime = sentence.getOffsetTimeForAnchor(ann.getStopAnchor());
-
+	    			String sentenceType = sentence.getMetadata().getSentenceType(); 
+	    			// ... question, backchannel, statement
+	    			
 	    			//    get prosodic features given times
-	    			// word, prewords, postwords, pos
+	    			// word, prewords, postwords, pos, statement label
 	    			// starttime, endtime
 	    			System.out.printf("Word: %s, POS: %s, StartTime: %g, EndTime: %g\n", word, pos, starttime, endtime);
 	    		}
