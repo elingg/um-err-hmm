@@ -3,6 +3,7 @@
 import java.io.*;
 import java.text.*;
 import java.util.*;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -48,8 +49,7 @@ public class ParseDocument {
 		try{
 			d = builder.parse(f);
 		}
-		catch(Exception e)
-		{
+		catch(Exception e){
 			e.printStackTrace();
 		}
 		
@@ -68,19 +68,71 @@ public class ParseDocument {
 			ag.setTimeline(n2.getTextContent());
 			
 			//set Metadata for an AG
-			Metadata m = new Metadata();
+			Metadata m = new Metadata();			
+			NodeList metadataelementslist = agelement.getElementsByTagName("MetaDataElements");
+			for(int j=0; j<metadataelementslist.getLength(); j++){
+				Element metadataelement= (Element) metadataelementslist.item(j);
+				if(metadataelement.getAttribute("name").equalsIgnoreCase("endOffset"))
+					m.setEndOffset(Integer.parseInt(metadataelement.getTextContent()));
+				else if(metadataelement.getAttribute("name").equalsIgnoreCase("paragraph"))
+					m.setParagraph(Integer.parseInt(metadataelement.getTextContent()));
+				else if(metadataelement.getAttribute("name").equalsIgnoreCase("id"))
+					m.setId(metadataelement.getTextContent());
+				else if(metadataelement.getAttribute("name").equalsIgnoreCase("startOffset"))
+					m.setStartOffset(Integer.parseInt(metadataelement.getTextContent()));
+				else if(metadataelement.getAttribute("name").equalsIgnoreCase("sentence"))
+					m.setSentence(metadataelement.getTextContent());
+				else if(metadataelement.getAttribute("name").equalsIgnoreCase("treebanking"))
+					m.setTreeBanking(metadataelement.getTextContent());				
+				
+			}
+			ag.setMetadata(m);
 			
-			agelement.getElementsByTagName("MetaData");
+			//set anchors for an ag;
+		    HashMap<String, Double> anchors= new HashMap<String, Double>();
+			NodeList anchorlist = agelement.getElementsByTagName("Anchor");
+            for(int j=0; j<anchorlist.getLength(); j++){
+            	Element anchor = (Element) anchorlist.item(j);
+            	String id = anchor.getAttribute("id");
+            	String offset = anchor.getAttribute("offset");
+            	ag.addAnchor(id, Double.valueOf(offset));
+            }
+            
+            
+            //set annotations for an ag;
+			NodeList annotationlist = agelement.getElementsByTagName("Annotation");
+			for(int j=0; j< annotationlist.getLength(); j++)			{
+				Annotation ann = new Annotation();
+				Element annelement= (Element) annotationlist.item(j);
+				
+				NamedNodeMap nnm1 = annelement.getAttributes();
+				ann.setID(nnm1.getNamedItem("id").getTextContent());
+				ann.setType(nnm1.getNamedItem("type").getTextContent());
+				ann.setStartAnchor(nnm1.getNamedItem("startAnchor").getTextContent());
+				ann.setStopAnchor(nnm1.getNamedItem("stopAnchor").getTextContent());
+				
+				NodeList featurelist = annelement.getElementsByTagName("Feature");
+				for(int k=0; k<featurelist.getLength(); k++) {
+					Element feature = (Element) featurelist.item(k);
+					if(feature.getAttribute("name").equalsIgnoreCase("mdeTokenId")){
+						ann.setMdeTokenId(feature.getTextContent());						
+					}
+					else if (feature.getAttribute("name").equalsIgnoreCase("tag")){
+						ann.setTag(feature.getTextContent());
+					}
+					else if (feature.getAttribute("name").equalsIgnoreCase("index")){
+						ann.setIndex(feature.getTextContent());
+					}
+					
+				}
+				ag.addAnnotation(ann);
+			}		
 			
-			
-			
-			
-			
+			sd.addAG(ag);			
 		}
 		
 		return sd;
 
-	}
-	
+	}	
 	
 }
