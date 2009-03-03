@@ -5,9 +5,27 @@ public class AG {
 	Metadata m_meta;
     HashMap<String, Double> m_anchors;
 	Vector<Annotation> m_anns;
+	String m_id;
+	String m_timeline;
 	
 	public AG() {}
+	public AG(String id, String timeline) { 
+		m_id = id; 
+		m_timeline = timeline;
+	}
 	
+	public void setTimeline(String timeline) {
+		m_timeline = timeline;
+	}
+	public String getTimeline() {
+		return m_timeline;
+	}
+	public void setId(String id) {
+		m_id = id;
+	}
+	public String getId() {
+		return m_id;
+	}
 	public Metadata getMetadata() {
 		return m_meta;
 	}
