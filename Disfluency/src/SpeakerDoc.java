@@ -3,25 +3,25 @@ import java.util.Vector;
 
 public class SpeakerDoc {
 
-	Integer m_Id;
-	String m_Speaker; // either a or b really
+	Integer m_id;
+	String m_speaker; // either a or b really
 	Vector<AG> m_AGSet;
 	void setID(Integer id) { 
-		m_Id = id;
+		m_id = id;
 	}
 	public SpeakerDoc() {}
 	public SpeakerDoc(Integer id, String speaker) {
-		m_Id = id;
-		m_Speaker = speaker;
+		m_id = id;
+		m_speaker = speaker;
 	}
 	void setId(Integer id) {
-		m_Id = id;
+		m_id = id;
 	}
 	Integer getId() {
-		return m_Id;
+		return m_id;
 	}
 	String getSpeakerName() {
-		return m_Speaker;
+		return m_speaker;
 	}
 	void addAG(AG ag) {
 		m_AGSet.add(ag);
