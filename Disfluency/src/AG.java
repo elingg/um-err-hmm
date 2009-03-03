@@ -8,9 +8,13 @@ public class AG {
 	String m_id;
 	String m_timeline;
 	
-	public AG() { m_anchors = new HashMap<String, Double>(); }
+	public AG() { 
+		m_anchors = new HashMap<String, Double>(); 
+		m_anns = new Vector<Annotation>();
+	}
 	public AG(String id, String timeline) { 
 		m_anchors = new HashMap<String, Double>();
+		m_anns = new Vector<Annotation>();
 		m_id = id; 
 		m_timeline = timeline;
 	}
