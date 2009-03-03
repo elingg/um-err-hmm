@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -17,11 +18,11 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.ErrorHandler;
 
 public class ParseDocument {
-	
-	private Document document;
 
-	public ParseDocument(File f){
-		DocumentBuilder builder = null;
+	DocumentBuilder builder = null;
+
+	public ParseDocument(){
+		
 		try {
 		    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		    factory.setValidating(true);
@@ -36,24 +37,50 @@ public class ParseDocument {
 		    System.out.println("parser was unable to be configured");
 		    System.exit(2);
 		}
-		
+	}
+	
+	
+	
+	public SpeakerDoc process(File f)
+	{		
+		SpeakerDoc sd = new SpeakerDoc();
+		Document d = null; 
 		try{
-			document = builder.parse(f);
+			d = builder.parse(f);
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
+		}
+		
+		NodeList listAG = d.getElementsByTagName("AG");		
+		
+		for(int i=0; i<listAG.getLength(); i++){
 			
-		}		 
+			AG ag = new AG();
+			Element agelement = (Element) listAG.item(i);
+			
+			//set Attributes of an AG
+			NamedNodeMap nnm = listAG.item(i).getAttributes();
+			Node n1 = nnm.getNamedItem("id");
+			Node n2 = nnm.getNamedItem("timeline");			
+			ag.setId(n1.getTextContent());
+			ag.setTimeline(n2.getTextContent());
+			
+			//set Metadata for an AG
+			Metadata m = new Metadata();
+			
+			agelement.getElementsByTagName("MetaData");
+			
+			
+			
+			
+			
+		}
+		
+		return sd;
 
 	}
-	
-	public void process(Document d)
-	{
-		
-	}
-	
-	
 	
 	
 }
