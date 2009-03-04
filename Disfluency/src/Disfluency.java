@@ -22,7 +22,8 @@ public class Disfluency {
 	    // Writing training data...
     	ParseDocument pd = new ParseDocument();
     	File outputfile = new File(argp.m_wekaInputFile);
-    	wekaInput wi(outputfile);
+    	WekaInput wi = new WekaInput(outputfile);
+    	wi.startHeaderWrite();
 	    for(File file : files) {
 			// parse it into SpeakerDocs
 	    	SpeakerDoc sd;

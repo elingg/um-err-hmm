@@ -97,8 +97,7 @@ public class ParseDocument {
             	String offset = anchor.getAttribute("offset");
             	ag.addAnchor(id, Double.valueOf(offset));
             }
-            
-            
+                        
             //set annotations for an ag;
 			NodeList annotationlist = agelement.getElementsByTagName("Annotation");
 			for(int j=0; j< annotationlist.getLength(); j++)			{
