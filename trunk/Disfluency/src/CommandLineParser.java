@@ -3,14 +3,14 @@
 public class CommandLineParser {
 	// from http://journals.ecs.soton.ac.uk/java/tutorial/java/cmdLineArgs/parsing.html
 	public boolean m_verbose;
-	public String m_srcDir;
+	public String m_srcDir, m_wekaInputFile;
 	public Integer m_npregram, m_npostgram;
 	public void parseArguments(String[] args) {
 		int i = 0;
 		String arg;
 		m_verbose = false;
 		m_srcDir = "";
-
+		m_wekaInputFile = "";
 		while (i < args.length && args[i].startsWith("-")) {
 			arg = args[i++];
 			// use this type of check for "wordy" arguments
@@ -27,6 +27,14 @@ public class CommandLineParser {
 					System.err.println("-dir requires a dirname");
 				if (m_verbose)
 					System.out.println("dir  = " + m_srcDir);
+			}
+			else if (arg.equals("-wekafile")) {
+				if (i < args.length)
+					m_wekaInputFile = args[i++];
+				else
+					System.err.println("-wekafile requires a file name");
+				if (m_verbose)
+					System.out.println("wekafile  = " + m_wekaInputFile);
 			}
 			else if (arg.equals("-npregram")) {
 				if (i < args.length)
