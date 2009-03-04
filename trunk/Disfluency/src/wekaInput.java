@@ -5,13 +5,13 @@ import java.io.FileWriter;
 import java.util.Vector;
 
 
-public class wekaInput {
+public class WekaInput {
 	
 	private int numFeatures = 5; 
 	File outputfile;
 	BufferedWriter br; 
 
-	public wekaInput(File outputfile)
+	public WekaInput(File outputfile)
 	{
 		this.outputfile = outputfile;
 		try{
