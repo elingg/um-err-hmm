@@ -48,7 +48,7 @@ public class WekaInput {
 			
 		}
 	}
-	public void writeData(Vector v){
+	public void writeData(Vector<String> v){
 		String data="";
 		if(v.size() < numFeatures)
 		{
@@ -58,7 +58,11 @@ public class WekaInput {
 		int size= v.size();
 		for(int i=0; i< size; i++)
 		{
-			data+=((String) v.get(i) + ", ");
+			if(i==size-1) {
+				data+=((String) v.get(i));
+			} else {
+				data+=((String) v.get(i) + ", ");
+			}
 		}
 		try{
 			br.write(data+"\n");

@@ -24,6 +24,18 @@ public class Disfluency {
     	File outputfile = new File(argp.m_wekaInputFile);
     	WekaInput wi = new WekaInput(outputfile);
     	wi.startHeaderWrite();
+    	wi.writeFeatureHeader("word", "string");
+    	wi.writeFeatureHeader("pos", "string");
+    	for(int i=0; i<argp.m_npregram; i++) {
+    		wi.writeFeatureHeader("pre".concat(String.valueOf(i)), "string");
+    		wi.writeFeatureHeader("prepos".concat(String.valueOf(i)), "string");
+    	}
+    	for(int i=0; i<argp.m_npostgram; i++) {
+    		wi.writeFeatureHeader("post".concat(String.valueOf(i)), "string");
+    		wi.writeFeatureHeader("postpos".concat(String.valueOf(i)), "string");
+    	}
+    	wi.writeFeatureHeader("label", "string");
+    	wi.startDataWrite();
 	    for(File file : files) {
 			// parse it into SpeakerDocs
 	    	SpeakerDoc sd;
@@ -32,69 +44,91 @@ public class Disfluency {
 	    	for(AG sentence : sentences) {
 		    	// for each sentence in this
 	    		String sentstr = sentence.getMetadata().getSentence();
+	    		System.out.println("Sentence unit:");
+	    		System.out.println(sentstr);
 	    		Vector<Annotation> anns = sentence.getAnnotations();
 	    		// each annotation is either a filler or a word...
 	    		// for each word...
-	    		String[] rawwords = sentstr.split(" "); // will have FP tags as well.
-	    		
-	    		if(rawwords.length!=anns.size()) {
-	    			System.out.printf("ERROR! Number of annotations: %d, Number of words: %d",anns.size(),rawwords.length);
-	    			return;
-	    		}
-	    		Vector<Annotation> wordanns = new Vector<Annotation>();
+	    		String[] subsent = sentstr.split(" "); // will have FP tags as well.
+	    		// strip empty words and strip "."
 	    		Vector<String> words = new Vector<String>();
-	    		for(int i = 0; i<anns.size(); i++) {
-	    			Annotation ann = anns.get(i);
-	    			if(ann.getType().compareToIgnoreCase("filler")==0) {
+	    		for(String sub: subsent) {
+	    			if((sub.length()==0) || 
+	    					(sub.compareTo(".")==0) ||
+	    					(sub.compareTo(",")==0) ||
+	    					(sub.compareTo("?")==0) ||
+	    					(sub.startsWith("[")&&sub.endsWith("]"))) {
 	    				continue;
 	    			}
-	    			String word = rawwords[i];
+	    			if(sub.startsWith("'")) {
+	    				sub = "\\"+sub;
+	    			}
+	    			words.add(sub);
+	    		}
+	    		Vector<Annotation> wordanns = new Vector<Annotation>();
+	    		for(int i = 0; i<anns.size(); i++) {
+	    			Annotation ann = anns.get(i);
+	    			if((ann.getType().compareTo("word")!=0) || 
+	    					(ann.getTag().compareTo(".")==0) || 
+	    					(ann.getTag().compareTo(",")==0)) {
+	    				continue;
+	    			}
 	    			wordanns.add(ann);
-	    			words.add(word);
+	    		}
+	    		if(words.size()!=wordanns.size()) {
+	    			System.out.printf("ERROR! Number of annotations: %d, Number of words: %d",
+	    					wordanns.size(),words.size());
+	    			return;
 	    		}
 	    		for(int i=0; i< wordanns.size(); i++) {
+		    		Vector<String> features = new Vector<String>();
 	    	    	//   for each word
 	    			Annotation ann = wordanns.get(i);
 	    			String empty = new String("$");
 	    	    	
 	    			//    get word
-	    			String word = words.get(i);
+	    			features.add(words.get(i));
+	    	    	//    get POS tag for word
+	    			features.add(ann.getTag());
 	    	    	
 	    			//    get n-pregrams
-	    			Vector<String> prewords = new Vector<String>(argp.m_npregram);
 	    			for(int ip=0; ip<argp.m_npregram; ip++) {
 	    				int wordindex = i - argp.m_npregram + ip;
 	    				if(wordindex<0) {
-	    					prewords.add(ip, empty);
+	    					features.add(empty);
+	    	    			features.add(empty.concat("POS"));
 	    				} else {
-	    					prewords.add(ip, words.get(i));
+	    					features.add(words.get(wordindex));
+	    					features.add(wordanns.get(wordindex).getTag());
 	    				}
 	    			}
 	    	    	//    get n-postgrams
-	    			Vector<String> postwords = new Vector<String>(argp.m_npostgram);
 	    			for(int ip=0; ip<argp.m_npostgram; ip++) {
 	    				int wordindex = i + 1 + ip;
 	    				if(wordindex>= words.size()) {
-	    					postwords.add(ip, empty);
+	    					features.add(empty);
+	    	    			features.add(empty.concat("POS"));
 	    				} else {
-	    					postwords.add(ip, words.get(i));
+	    					features.add(words.get(wordindex));
+	    					features.add(wordanns.get(wordindex).getTag());
 	    				}
 	    			}
-	    	    	//    get POS tag for word
-	    			String pos = ann.getTag();
 	    	    	//    get times that word spans
 	    			Double starttime = sentence.getOffsetTimeForAnchor(ann.getStartAnchor());
 	    			Double endtime = sentence.getOffsetTimeForAnchor(ann.getStopAnchor());
+	    			//    get prosodic features given times: TODO
 	    			String sentenceType = sentence.getMetadata().getSentenceType();
 	    			// ... question, backchannel, statement
-	    			
-	    			//    get prosodic features given times
-	    			// word, prewords, postwords, pos, statement label
-	    			// starttime, endtime
-	    			System.out.printf("Word: %s, POS: %s, StartTime: %g, EndTime: %g\n", word, pos, starttime, endtime);
+	    			features.add(sentenceType);
+	    			wi.writeData(features);
+	    			System.out.println("Features:");
+	    			for(String feature: features) {
+	    				System.out.print(" ".concat(feature));
+	    			}
+	    			System.out.println("");
 	    		}
-	    	}
-	    }
-
+	    	} // for each sentence
+	    	break; // only first file for now.
+	    } // for each file
 	}
 }
