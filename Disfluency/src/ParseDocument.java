@@ -1,8 +1,8 @@
 
 
 import java.io.*;
-import java.text.*;
-import java.util.*;
+//import java.text.*;
+//import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -12,11 +12,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
-import org.w3c.dom.Text;
+//import org.w3c.dom.Text;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.ErrorHandler;
+//import org.xml.sax.SAXException;
+//import org.xml.sax.SAXParseException;
+//import org.xml.sax.ErrorHandler;
 
 public class ParseDocument {
 
@@ -89,7 +89,6 @@ public class ParseDocument {
 			ag.setMetadata(m);
 			
 			//set anchors for an ag;
-		    HashMap<String, Double> anchors= new HashMap<String, Double>();
 			NodeList anchorlist = agelement.getElementsByTagName("Anchor");
             for(int j=0; j<anchorlist.getLength(); j++){
             	Element anchor = (Element) anchorlist.item(j);
