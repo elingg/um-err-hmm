@@ -71,6 +71,6 @@ public class CommandLineParser {
 //			}
 		}
 		if (i != args.length)
-			System.err.println("Usage: Disfluency.java [-verbose] [-npostgram n] [-npregram n] [-dir dirname]");
+			System.err.println("Usage: Disfluency.java [-verbose] [-npostgram n] [-npregram n] [-dir dirname] [-wekafile fname]");
 	}
 }
