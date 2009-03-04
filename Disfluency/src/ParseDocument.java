@@ -69,7 +69,7 @@ public class ParseDocument {
 			
 			//set Metadata for an AG
 			Metadata m = new Metadata();			
-			NodeList metadataelementslist = agelement.getElementsByTagName("MetaDataElements");
+			NodeList metadataelementslist = agelement.getElementsByTagName("MetadataElement");
 			for(int j=0; j<metadataelementslist.getLength(); j++){
 				Element metadataelement= (Element) metadataelementslist.item(j);
 				if(metadataelement.getAttribute("name").equalsIgnoreCase("endOffset"))
@@ -108,8 +108,8 @@ public class ParseDocument {
 				NamedNodeMap nnm1 = annelement.getAttributes();
 				ann.setID(nnm1.getNamedItem("id").getTextContent());
 				ann.setType(nnm1.getNamedItem("type").getTextContent());
-				ann.setStartAnchor(nnm1.getNamedItem("startAnchor").getTextContent());
-				ann.setStopAnchor(nnm1.getNamedItem("stopAnchor").getTextContent());
+				ann.setStartAnchor(nnm1.getNamedItem("start").getTextContent());
+				ann.setStopAnchor(nnm1.getNamedItem("end").getTextContent());
 				
 				NodeList featurelist = annelement.getElementsByTagName("Feature");
 				for(int k=0; k<featurelist.getLength(); k++) {

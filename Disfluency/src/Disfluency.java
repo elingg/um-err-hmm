@@ -21,6 +21,8 @@ public class Disfluency {
 	    File[] files = dir.listFiles(filter);
 	    // Writing training data...
     	ParseDocument pd = new ParseDocument();
+    	File outputfile = new File(argp.m_wekaInputFile);
+    	wekaInput wi(outputfile);
 	    for(File file : files) {
 			// parse it into SpeakerDocs
 	    	SpeakerDoc sd;
@@ -33,6 +35,7 @@ public class Disfluency {
 	    		// each annotation is either a filler or a word...
 	    		// for each word...
 	    		String[] rawwords = sentstr.split(" "); // will have FP tags as well.
+	    		
 	    		if(rawwords.length!=anns.size()) {
 	    			System.out.printf("ERROR! Number of annotations: %d, Number of words: %d",anns.size(),rawwords.length);
 	    			return;
@@ -65,7 +68,7 @@ public class Disfluency {
 	    				} else {
 	    					prewords.add(ip, words.get(i));
 	    				}
-	    			}	    			
+	    			}
 	    	    	//    get n-postgrams
 	    			Vector<String> postwords = new Vector<String>(argp.m_npostgram);
 	    			for(int ip=0; ip<argp.m_npostgram; ip++) {
@@ -81,7 +84,7 @@ public class Disfluency {
 	    	    	//    get times that word spans
 	    			Double starttime = sentence.getOffsetTimeForAnchor(ann.getStartAnchor());
 	    			Double endtime = sentence.getOffsetTimeForAnchor(ann.getStopAnchor());
-	    			String sentenceType = sentence.getMetadata().getSentenceType(); 
+	    			String sentenceType = sentence.getMetadata().getSentenceType();
 	    			// ... question, backchannel, statement
 	    			
 	    			//    get prosodic features given times

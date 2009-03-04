@@ -30,7 +30,7 @@ public class CommandLineParser {
 			}
 			else if (arg.equals("-npregram")) {
 				if (i < args.length)
-					m_npregram = Integer.getInteger(args[i++]);
+					m_npregram = Integer.parseInt(args[i++]);		
 				else
 					System.err.println("-npregram requires a number for npregram");
 				if (m_verbose)
@@ -38,7 +38,7 @@ public class CommandLineParser {
 			}
 			else if (arg.equals("-npostgram")) {
 				if (i < args.length)
-					m_npostgram = Integer.getInteger(args[i++]);
+					m_npostgram = Integer.parseInt(args[i++]);		
 				else
 					System.err.println("-npostgram requires a number for npostgram");
 				if (m_verbose)
@@ -62,9 +62,7 @@ public class CommandLineParser {
 //				}
 //			}
 		}
-		if (i == args.length)
-			System.err.println("Usage: ParseCmdLine [-verbose] [-xn] [-output afile] filename");
-		else
-			System.out.println("Success!");
+		if (i != args.length)
+			System.err.println("Usage: Disfluency.java [-verbose] [-npostgram n] [-npregram n] [-dir dirname]");
 	}
 }
