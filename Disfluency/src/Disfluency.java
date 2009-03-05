@@ -54,18 +54,18 @@ public class Disfluency {
 		m_featureNames = new Vector<String>();
 		m_featureTypes = new Vector<String>();
 		m_npregram = npregram; m_npostgram = npostgram; 
-		m_featureNames.add("word"); m_featureTypes.add("nominal");
-		m_featureNames.add("pos"); m_featureTypes.add("nominal");
+		m_featureNames.add("word"); m_featureTypes.add("string");
+		m_featureNames.add("pos"); m_featureTypes.add("string");
     	for(int i=0; i<m_npregram; i++) {
-    		m_featureNames.add("pre".concat(String.valueOf(i))); m_featureTypes.add("nominal");
-    		m_featureNames.add("prepos".concat(String.valueOf(i))); m_featureTypes.add("nominal");
+    		m_featureNames.add("pre".concat(String.valueOf(i))); m_featureTypes.add("string");
+    		m_featureNames.add("prepos".concat(String.valueOf(i))); m_featureTypes.add("string");
     	}
     	for(int i=0; i<m_npostgram; i++) {
-    		m_featureNames.add("post".concat(String.valueOf(i))); m_featureTypes.add("nominal");
-    		m_featureNames.add("postpos".concat(String.valueOf(i))); m_featureTypes.add("nominal");
+    		m_featureNames.add("post".concat(String.valueOf(i))); m_featureTypes.add("string");
+    		m_featureNames.add("postpos".concat(String.valueOf(i))); m_featureTypes.add("string");
     	}
     	// TODO: add prosodic features (as numerics/strings)
-		m_featureNames.add("label"); m_featureTypes.add("nominal");
+		m_featureNames.add("label"); m_featureTypes.add("string");
 		ProsodicFeaturesExtractor prosodic = new ProsodicFeaturesExtractor();
 		Vector<String> pfnames = prosodic.getFeatureNames();
 	    for(String name : pfnames) {
