@@ -7,6 +7,7 @@ public class ProsodicFeaturesExtractor {
 	Vector<String> m_featureNames;
 	
 	public ProsodicFeaturesExtractor() { 
+		m_featureNames = new Vector<String>();
 		// m_featureNames.add("F0"); // etc
 	}
 	public Vector<String> getFeatureNames() {
