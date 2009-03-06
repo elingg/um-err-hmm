@@ -70,7 +70,7 @@ public class Disfluency {
 		Vector<String> pfnames = prosodic.getFeatureNames();
 	    for(String name : pfnames) {
 	    	m_featureNames.add(name);
-		m_featureTypes.add("string");
+		m_featureTypes.add("numeric");
 	    }
 	}
 	public void writeFeatureHeaders(WekaInput wi) {
