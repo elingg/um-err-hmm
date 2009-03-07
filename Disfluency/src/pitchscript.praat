@@ -8,7 +8,7 @@ endform
 	soundname$ = selected$ ("Sound", 1)
 	To Pitch... 0.0 75.0 600.0
 
-	file$ < intervals.txt
+	file$ < ../intervals.txt
 	leftoverlength = length (file$)
 	while leftoverlength  > 50
 		
@@ -32,6 +32,6 @@ endform
         	pitchmin = Get minimum... newlabel newlabel1 Hertz Parabolic
        		 #printline 'pitchmin'	
 		pitchrange = pitchmax - pitchmin
-		fileappend "features.txt" 'pitchrange'
-	        fileappend "features.txt" 'newline$'
+		fileappend "../features.txt" 'pitchrange'
+	        fileappend "../features.txt" 'newline$'
 	endwhile
