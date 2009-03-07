@@ -43,6 +43,7 @@ public class Disfluency {
 		while(xmlwav.hasNext()) {
 			  Map.Entry<String,String> entry = xmlwav.next();
 			  disfl.extractAndWriteFeatures(entry.getKey(), entry.getValue(), wi, true, argp.m_verbose);
+			  break;// for now, TODO: REMOVE 
 		}
 		xmlwav = xmlwavfiles.entrySet().iterator();
 		// extract features from training files...
@@ -57,6 +58,7 @@ public class Disfluency {
 					  " and "+entry.getValue()+"...");
 			  }
 			  disfl.extractAndWriteFeatures(entry.getKey(), entry.getValue(), wi, false, argp.m_verbose);
+			  break;// for now, TODO: REMOVE 
 		}
 		System.out.println("Done extracting features into: "+wekafname+" file.");
 		// run weka experiment on wekafile
@@ -104,8 +106,7 @@ public class Disfluency {
     	}
     	// add prosodic features (as numerics)
 		ProsodicFeaturesExtractor prosodic = new ProsodicFeaturesExtractor();
-		Vector<String> pfnames = new Vector<String>();
-//		prosodic.getFeatureNames();
+		Vector<String> pfnames = prosodic.getFeatureNames();
 	    for(String name : pfnames) {
 	    	m_featureNames.add(name);
 			m_featureTypes.add("numeric");
@@ -198,8 +199,6 @@ public class Disfluency {
     	for(AG sentence : sentences) {
 	    	// for each sentence in this
     		String sentstr = sentence.getMetadata().getSentence();
-//    		System.out.println("Sentence unit:");
-//    		System.out.println(sentstr);
     		Vector<Annotation> anns = sentence.getAnnotations();
     		// each annotation is either a filler or a word...
     		// for each word...
@@ -315,32 +314,25 @@ public class Disfluency {
     			allwordFeatures.add(features);
     			wordStartOffset.add(starttime);
     			wordStopOffset.add(endtime);
-//    			System.out.println("Features:");
-//    			for(String feature: features) {
-//    				System.out.print(" ".concat(feature));
-//    			}
-//    			System.out.println("");
     		}
     	} // for each sentence
     	// add prosodic features...
-    	ProsodicFeaturesExtractor prosodic = new ProsodicFeaturesExtractor();
-		Vector<Vector<Double>> pfeats = new Vector<Vector<Double>>();
-		Vector<String> prosodicfnames = prosodic.getFeatureNames();
-//		prosodic.extractFeatures(wavfile, wordStartOffset, wordStopOffset);
-    	for(int iword = 0; iword<allwordFeatures.size(); iword++) {
-    		Vector<String> features = allwordFeatures.get(iword);
-    		if(pfeats.size()>0) {
-    			Vector<Double> prosodicfeatures = pfeats.get(iword);
-    			for(int ip=0; ip<prosodicfeatures.size(); ip++) {
-    				if(m_featureActive.contains(prosodicfnames.get(ip))) {
-    					features.add(String.valueOf(prosodicfeatures.get(ip)));
-    					m_featureDict.get(features.get(ip)).add(String.valueOf(prosodicfeatures.get(ip)));
+    	if(!buildVocabOnly) {
+    		ProsodicFeaturesExtractor prosodic = new ProsodicFeaturesExtractor();
+    		Vector<String> prosodicfnames = prosodic.getFeatureNames();
+    		Vector<Vector<Double>> pfeats =	prosodic.extractFeatures(wavfile, wordStartOffset, wordStopOffset);
+    		for(int iword = 0; iword<allwordFeatures.size(); iword++) {
+    			Vector<String> features = allwordFeatures.get(iword);
+    			if(pfeats.size()>0) {
+    				Vector<Double> prosodicfeatures = pfeats.get(iword);
+    				for(int ip=0; ip<prosodicfeatures.size(); ip++) {
+    					if(m_featureActive.contains(prosodicfnames.get(ip))) {
+    						features.insertElementAt(String.valueOf(prosodicfeatures.get(ip)),features.size()-1); // insert before label
+    					}
     				}
     			}
+    			wi.writeData(features);
     		}
-        	if(!buildVocabOnly) {
-        		wi.writeData(features);
-        	}
     	}
 	}
 }
