@@ -2,6 +2,7 @@
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Vector;
 
@@ -23,6 +24,15 @@ public class WekaInput {
 		}
 		
 	}
+	public void closeFile() 
+	{
+		try {
+			br.flush();
+			br.close();
+		} catch(Exception e) {
+		}
+	} 
+
 	public void startHeaderWrite(){
 		try{
 			br.write("@relation disfluency\n\n");

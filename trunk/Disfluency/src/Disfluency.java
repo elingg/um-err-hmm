@@ -60,6 +60,7 @@ public class Disfluency {
 			  disfl.extractAndWriteFeatures(entry.getKey(), entry.getValue(), wi, false, argp.m_verbose);
 			  break;// for now, TODO: REMOVE 
 		}
+		wi.closeFile();
 		System.out.println("Done extracting features into: "+wekafname+" file.");
 		// run weka experiment on wekafile
 	    // Experiment exp = new Experiment();
