@@ -2,12 +2,13 @@
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.HashSet;
 import java.util.Vector;
 
 
 public class WekaInput {
 	
-	private int numFeatures = 5; 
+	private int numFeatures = 0; 
 	File outputfile;
 	BufferedWriter br; 
 
@@ -33,13 +34,31 @@ public class WekaInput {
 	
     public void	writeFeatureHeader(String feature, String type){
     	try{
+    		numFeatures++;
 			br.write("@attribute "+feature+" "+type+"\n");
 		}
 		catch(Exception e){
 			
 		}
     }
-    
+    public void writeFeatureHeaderForNominal(String feature, HashSet<String> dict) {
+    	try {
+    		numFeatures++;
+    		Object[] v = dict.toArray();
+    		String vocab = new String();
+    		for(int i=0; i< v.length; i++) {
+    			if(i==v.length-1) {
+    				vocab+=(String)(v[i]);
+    			} else {
+    				vocab+=(String)(v[i]) + ", ";
+    			}
+    		}
+    		br.write("@attribute "+feature+"{"+vocab+"}\n");
+    	}
+		catch(Exception e){			
+		}
+    }
+
 	public void startDataWrite(){
 		try{
 			br.write("\n@data\n");
