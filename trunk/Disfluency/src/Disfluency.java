@@ -5,9 +5,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
+
 //import weka.classifiers.functions.SMO;
 //import weka.classifiers.Classifier;
 //import weka.experiment.Experiment;
+
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.MultiHashtable;
 
 // main driver class...
 public class Disfluency {
@@ -17,6 +20,11 @@ public class Disfluency {
 	HashSet<String> m_featureActive;
 	HashMap<String, HashSet<String>> m_featureDict; // indexed by feature-name
 	
+	class SpeakerPair{
+		public String a;
+		public String b;
+	}
+	
 	public static void main(String[] args) {
 		CommandLineParser argp = new CommandLineParser();
 		argp.parseArguments(args);
@@ -24,7 +32,9 @@ public class Disfluency {
 		Disfluency disfl = new Disfluency(argp.m_npregram,argp.m_npostgram);
 		
 		// get training datafiles (get xml and wav files)
-		HashMap<String, String> xmlwavfiles = disfl.getTrainingFiles(argp.m_srcDir);
+		HashMap<String, SpeakerPair> xmlwavfiles = disfl.getTrainingFiles(argp.m_srcDir);
+		
+		 
 		
 		System.out.println("Using "+argp.m_npregram+" pregrams and "+argp.m_npostgram+" postgrams as features");
 		System.out.println("Detected "+xmlwavfiles.size()+" wav-xml pairs under "+argp.m_srcDir);
@@ -37,12 +47,13 @@ public class Disfluency {
     	WekaInput wi = new WekaInput(wekafile);
     	
     	wi.startHeaderWrite();
-    	Iterator<Map.Entry<String, String>> xmlwav = xmlwavfiles.entrySet().iterator();
+    	Iterator<Map.Entry<String, SpeakerPair>> xmlwav = xmlwavfiles.entrySet().iterator();
 		// extract features from training files...
 		System.out.println("Building vocab: ");
 		while(xmlwav.hasNext()) {
-			  Map.Entry<String,String> entry = xmlwav.next();
-			  disfl.extractAndWriteFeatures(entry.getKey(), entry.getValue(), wi, true, argp.m_verbose);
+			  Map.Entry<String,SpeakerPair> entry = xmlwav.next();
+			  disfl.extractAndWriteFeatures(entry.getValue().a, entry.getKey(), wi, true, argp.m_verbose);
+			  disfl.extractAndWriteFeatures(entry.getValue().b, entry.getKey(), wi, true, argp.m_verbose);
 			  break;// for now, TODO: REMOVE 
 		}
 		xmlwav = xmlwavfiles.entrySet().iterator();
@@ -52,12 +63,13 @@ public class Disfluency {
     	wi.startDataWrite();
 		System.out.println("Extracting features into: "+wekafname+" file...");
 		while(xmlwav.hasNext()) {
-			  Map.Entry<String,String> entry = xmlwav.next();
+			  Map.Entry<String,SpeakerPair> entry = xmlwav.next();
 			  if(argp.m_verbose) {
 				  System.out.println("Processing: "+entry.getKey()+
 					  " and "+entry.getValue()+"...");
 			  }
-			  disfl.extractAndWriteFeatures(entry.getKey(), entry.getValue(), wi, false, argp.m_verbose);
+			  disfl.extractAndWriteFeatures( entry.getValue().a, entry.getKey(), wi, false, argp.m_verbose);
+			  disfl.extractAndWriteFeatures( entry.getValue().b, entry.getKey(), wi, false, argp.m_verbose);
 			  break;// for now, TODO: REMOVE 
 		}
 		wi.closeFile();
@@ -152,7 +164,7 @@ public class Disfluency {
 	    File[] files = txtdir.listFiles(filter);		
 	    return files;
 	}
-	public HashMap<String, String> getTrainingFiles(String dataDir) {
+	public HashMap<String, SpeakerPair> getTrainingFiles(String dataDir) {
 		// data/speech/dev1_wav
 		// data/speech/dev2_wav
 		// data/speech/eval_wav
@@ -162,21 +174,31 @@ public class Disfluency {
 	    // for now dev1, add others if you want later.
 		String xmldir = new String(dataDir);
 		xmldir = xmldir.concat("/text/dev1");
-	    File[] xmlfiles = getFilesWithExtension(xmldir,"xml");
 	    String speechdir = new String(dataDir);
 		speechdir = speechdir.concat("/speech/dev1_wav");
+	    File[] speechfiles = getFilesWithExtension(speechdir,"wav");
+
 		
 		// File[] speechfiles = getFilesWithExtension(speechdir,"wav");
-		HashMap<String, String> xmlwavfiles = new HashMap<String, String>();
-		for(File xmlfile:xmlfiles) {
-			String[] fields = xmlfile.getName().split("\\.");
-			String wavname = fields[0];
-			wavname = wavname.concat(".wav");
-			wavname = speechdir+"/"+wavname;
-			File speechfile = new File(wavname);
-			if(!speechfile.isFile())
+		HashMap<String, SpeakerPair> xmlwavfiles = new HashMap<String, SpeakerPair>();
+		for(File speechfile:speechfiles) {
+			String[] fields = speechfile.getName().split("\\.");
+			String xmlname = fields[0];
+			String xmlnamea="";
+			String xmlnameb="";
+			xmlnamea = xmlname.concat(".a.parse.ftags.ag.xml");
+			xmlnamea = xmldir+"/"+xmlnamea;
+			xmlnameb = xmlname.concat(".b.parse.ftags.ag.xml");
+			xmlnameb = xmldir+"/"+xmlnameb;			
+
+			File xmlfilea = new File(xmlnamea);
+			File xmlfileb = new File(xmlnameb);
+			if(!xmlfilea.isFile() && !xmlfileb.isFile())
 				continue;
-			xmlwavfiles.put(xmlfile.getAbsolutePath(), speechfile.getAbsolutePath());
+			SpeakerPair sp= new SpeakerPair();
+			sp.a= xmlfilea.getAbsolutePath();
+			sp.b= xmlfileb.getAbsolutePath();
+			xmlwavfiles.put(speechfile.getAbsolutePath(), sp);
 //			System.out.println(xmlfile.getAbsolutePath());
 //			System.out.println(speechfile.getAbsolutePath());
 		}	    
