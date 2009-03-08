@@ -6,9 +6,7 @@ public class SpeakerDoc {
 	Integer m_id;
 	String m_speaker; // either a or b really
 	Vector<AG> m_AGSet;
-	void setID(Integer id) { 
-		m_id = id;
-	}
+	
 	public SpeakerDoc() {
 		m_AGSet = new Vector<AG>();
 	}

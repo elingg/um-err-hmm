@@ -54,6 +54,9 @@ public class ParseDocument {
 		}
 		
 		NodeList listAG = d.getElementsByTagName("AG");		
+		String s= f.getName();
+		String[] split = s.split("\\.");
+		sd.m_speaker=split[1];
 		
 		for(int i=0; i<listAG.getLength(); i++){
 			
