@@ -11,6 +11,7 @@ public class CommandLineParser {
 		m_verbose = false;
 		m_srcDir = "";
 		m_wekaInputFile = "";
+		m_npregram = m_npostgram = 1;
 		while (i < args.length && args[i].startsWith("-")) {
 			arg = args[i++];
 			// use this type of check for "wordy" arguments

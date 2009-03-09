@@ -1,5 +1,7 @@
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,6 +11,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Vector;
 
 //import weka.classifiers.functions.SMO;
@@ -23,7 +27,6 @@ public class WordStream {
 	Vector<String> m_featureTypes;
 	HashSet<String> m_featureActive;
 	HashMap<String, HashSet<String>> m_featureDict; // indexed by feature-name
-	List<Word> wordStreams = new ArrayList<Word>();
 	
 	class SpeakerPair{
 		public String a;
@@ -40,7 +43,7 @@ public class WordStream {
 		HashMap<String, SpeakerPair> xmlwavfiles = disfl.getTrainingFiles(argp.m_srcDir);	
 		 
 		
-		System.out.println("Using "+argp.m_npregram+" pregrams and "+argp.m_npostgram+" postgrams as features");
+//		System.out.println("Using "+argp.m_npregram+" pregrams and "+argp.m_npostgram+" postgrams as features");
 		System.out.println("Detected "+xmlwavfiles.size()+" wav-xml pairs under "+argp.m_srcDir);
 		// create arff file
 		String wekafname = argp.m_wekaInputFile; 
@@ -54,45 +57,55 @@ public class WordStream {
     	Iterator<Map.Entry<String, SpeakerPair>> xmlwav = xmlwavfiles.entrySet().iterator();
 		// extract features from training files...
     	
-		System.out.println("Building vocab: ");
+//		System.out.println("Building vocab: ");
 		while(xmlwav.hasNext()) {
-			  Map.Entry<String,SpeakerPair> entry = xmlwav.next();
-			  System.out.println(entry.getValue().a);
-			  disfl.extractAndWriteFeatures(entry.getValue().a, entry.getKey(), wi, true, argp.m_verbose);
-			  disfl.extractAndWriteFeatures(entry.getValue().b, entry.getKey(), wi, true, argp.m_verbose);
-			  break;// for now, TODO: REMOVE 
+			Map.Entry<String,SpeakerPair> entry = xmlwav.next();
+			TreeSet<Word> wordset = new TreeSet<Word>(TimeOffset);
+			disfl.extractAndWriteFeatures(entry.getValue().a, entry.getKey(), wi, true, argp.m_verbose,wordset);
+			disfl.extractAndWriteFeatures(entry.getValue().b, entry.getKey(), wi, true, argp.m_verbose,wordset);
+
+			File srcfile = new File(entry.getValue().a);
+			String[] fields = srcfile.getName().split("\\.");
+			String intervaldir = srcfile.getParent();
+			intervaldir = intervaldir.concat("_int");
+			new File(intervaldir).mkdir();
+			String intervalfname = intervaldir+"/"+fields[0]+".interval.txt";
+			File intervalfile = new File(intervalfname);
+			BufferedWriter br=null;
+			try {
+				br= new BufferedWriter(new FileWriter(intervalfile));
+				for(Word word : wordset){
+					if(argp.m_verbose) {
+						System.out.println(word.m_word+"\t"+word.m_startOffsetTime+"\t"+word.m_endOffsetTime+"\t"+word.m_speaker);
+					}
+					br.write(word.m_startOffsetTime+"\t"+word.m_endOffsetTime+"\t"+word.m_speaker+"\t"+word.m_word+"\n");
+				}
+				System.out.println("Processed "+srcfile.getPath()+" into interval file "+intervalfile.getPath());
+				br.flush();
+				br.close();
+			} catch(Exception e) {}
 		}
-		xmlwav = xmlwavfiles.entrySet().iterator();
-		// extract features from training files...
-    	// that each feature takes
-		disfl.writeFeatureHeaders(wi); // delay writing to here since we may need nominal values
-    	wi.startDataWrite();
-		System.out.println("Extracting features into: "+wekafname+" file...");
-		while(xmlwav.hasNext()) {
-			  Map.Entry<String,SpeakerPair> entry = xmlwav.next();
-			  if(argp.m_verbose) {
-				  System.out.println("Processing: "+entry.getKey()+
-					  " and "+entry.getValue()+"...");
-			  }
-//			  disfl.extractAndWriteFeatures( entry.getValue().a, entry.getKey(), wi, false, argp.m_verbose);
-//			  disfl.extractAndWriteFeatures( entry.getValue().b, entry.getKey(), wi, false, argp.m_verbose);
-			  break;// for now, TODO: REMOVE 
-		}
-		Collections.sort(disfl.wordStreams, TimeOffset);
-		ArrayList<Word> reverse= new ArrayList<Word>();
-//		for(int k=disfl.wordStreams.size()-1; k>=0; k--){
-//			reverse.add(k, disfl.wordStreams.get(disfl.wordStreams.size()-k-1));
-//			
-//		}		
-		for(Word word : disfl.wordStreams){
-			System.out.println(word.word+"\t"+word.speaker+"\t"+word.StartOffset);
-		}
-		
-		
-		wi.closeFile();
-		System.out.println("Done extracting features into: "+wekafname+" file.");
-		// run weka experiment on wekafile
-	    // Experiment exp = new Experiment();
+//		xmlwav = xmlwavfiles.entrySet().iterator();
+//		// extract features from training files...
+//    	// that each feature takes
+//		disfl.writeFeatureHeaders(wi); // delay writing to here since we may need nominal values
+//    	wi.startDataWrite();
+//		System.out.println("Extracting features into: "+wekafname+" file...");
+//		while(xmlwav.hasNext()) {
+//			  Map.Entry<String,SpeakerPair> entry = xmlwav.next();
+//			  if(argp.m_verbose) {
+//				  System.out.println("Processing: "+entry.getKey()+
+//					  " and "+entry.getValue()+"...");
+//			  }
+////			  disfl.extractAndWriteFeatures( entry.getValue().a, entry.getKey(), wi, false, argp.m_verbose);
+////			  disfl.extractAndWriteFeatures( entry.getValue().b, entry.getKey(), wi, false, argp.m_verbose);
+//			  break;// for now, TODO: REMOVE 
+//		}
+//				
+//		wi.closeFile();
+//		System.out.println("Done extracting features into: "+wekafname+" file.");
+//		// run weka experiment on wekafile
+//	    // Experiment exp = new Experiment();
 	}
 	public WordStream(int npregram, int npostgram) {
 		m_featureNames = new Vector<String>();
@@ -189,37 +202,38 @@ public class WordStream {
 		// data/text/dev2
 		// data/text/eval
 	    // for now dev1, add others if you want later.
-		String xmldir = new String(dataDir);
-		xmldir = xmldir.concat("/text/dev1");
-	    String speechdir = new String(dataDir);
-		speechdir = speechdir.concat("/speech/dev1_wav");
-	    File[] speechfiles = getFilesWithExtension(speechdir,"wav");
-
-		
-		// File[] speechfiles = getFilesWithExtension(speechdir,"wav");
+		TreeMap<String, String> dirs = new TreeMap<String, String>();
+		dirs.put(dataDir+"/text/dev1", dataDir+"/speech/dev1_wav");
+		dirs.put(dataDir+"/text/dev2", dataDir+"/speech/dev2_wav");
+//		dirs.put(dataDir+"/text/eval", dataDir+"/speech/eval_wav");
 		HashMap<String, SpeakerPair> xmlwavfiles = new HashMap<String, SpeakerPair>();
-		for(File speechfile:speechfiles) {
-			String[] fields = speechfile.getName().split("\\.");
-			String xmlname = fields[0];
-			String xmlnamea="";
-			String xmlnameb="";
-			xmlnamea = xmlname.concat(".a.parse.ftags.ag.xml");
-			xmlnamea = xmldir+"/"+xmlnamea;
-			xmlnameb = xmlname.concat(".b.parse.ftags.ag.xml");
-			xmlnameb = xmldir+"/"+xmlnameb;			
+		for(Map.Entry<String, String> entry: dirs.entrySet()) {
+			String xmldir = entry.getKey();
+			String speechdir = entry.getValue();
+			File[] speechfiles = getFilesWithExtension(speechdir,"wav");
 
-			File xmlfilea = new File(xmlnamea);
-			File xmlfileb = new File(xmlnameb);
-			if(!xmlfilea.isFile() && !xmlfileb.isFile())
-				continue;
-			SpeakerPair sp= new SpeakerPair();
-			sp.a= xmlfilea.getAbsolutePath();
-			sp.b= xmlfileb.getAbsolutePath();
-			xmlwavfiles.put(speechfile.getAbsolutePath(), sp);
-//			System.out.println(xmlfile.getAbsolutePath());
-//			System.out.println(speechfile.getAbsolutePath());
+			for(File speechfile:speechfiles) {
+				String[] fields = speechfile.getName().split("\\.");
+				String xmlname = fields[0];
+				String xmlnamea="";
+				String xmlnameb="";
+				xmlnamea = xmlname.concat(".a.parse.ftags.ag.xml");
+				xmlnamea = xmldir+"/"+xmlnamea;
+				xmlnameb = xmlname.concat(".b.parse.ftags.ag.xml");
+				xmlnameb = xmldir+"/"+xmlnameb;			
+
+				File xmlfilea = new File(xmlnamea);
+				File xmlfileb = new File(xmlnameb);
+				if(!xmlfilea.isFile() && !xmlfileb.isFile())
+					continue;
+				SpeakerPair sp= new SpeakerPair();
+				sp.a= xmlfilea.getAbsolutePath();
+				sp.b= xmlfileb.getAbsolutePath();
+				xmlwavfiles.put(speechfile.getAbsolutePath(), sp);
+				//			System.out.println(xmlfile.getAbsolutePath());
+				//			System.out.println(speechfile.getAbsolutePath());
+			}	    
 		}	    
-	    
 		return xmlwavfiles;
 	}
 	static String quoteWord(String word) {
@@ -230,16 +244,16 @@ public class WordStream {
 	
 	static final Comparator<Word> TimeOffset = new Comparator<Word>() {
 		public int compare(Word e1, Word e2) {
-			if( e2.StartOffset > (e1.StartOffset))
+			if( e2.m_startOffsetTime > (e1.m_startOffsetTime))
 				return -1;
-			else if( e2.StartOffset < (e1.StartOffset))
+			else if( e2.m_startOffsetTime < (e1.m_startOffsetTime))
 				return 1;
 			return 0;
 		}
 	};	
 	
 	public void extractAndWriteFeatures(String xmlfile, String wavfile, WekaInput wi, 
-			boolean buildVocabOnly, boolean verbose) {
+			boolean buildVocabOnly, boolean verbose, TreeSet<Word> wordset) {
     	SpeakerDoc sd;
     	
     	ParseDocument pd = new ParseDocument();
@@ -293,7 +307,7 @@ public class WordStream {
     		for(int i=0; i< wordanns.size(); i++) {
     			
     			Word word= new Word();
-    			word.speaker = sd.getSpeakerName();
+    			word.m_speaker = sd.getSpeakerName();
     			
 	    		Vector<String> features = new Vector<String>();
     	    	//   for each word
@@ -301,14 +315,14 @@ public class WordStream {
     			String empty = new String("$");
     			// 	m_featureDict.put("word", empty);
     			//  get word
-    			word.word=words.get(i);
+    			word.m_word=words.get(i);
     			if(m_featureActive.contains("word")) {
     				features.add(words.get(i));
-    				word.word = words.get(i);
+    				word.m_word = words.get(i);
     			} 
     	    	//  get POS tag for word
     			if(m_featureActive.contains("pos")) {
-    				word.POS = ann.getTag();
+    				word.m_POS = ann.getTag();
     				features.add(ann.getTag());
     				m_featureDict.get("pos").add(ann.getTag());
     			}    	    	
@@ -368,15 +382,16 @@ public class WordStream {
         			// ... question, backchannel, statement
     			}
 				if(m_featureActive.contains("label")) {
-					word.sentenceType = sentence.getMetadata().getSentenceType();
+					word.m_sentenceType = sentence.getMetadata().getSentenceType();
 					features.add(sentenceType);
 					m_featureDict.get("label").add(sentenceType);
 				}
     			allwordFeatures.add(features);
     			wordStartOffset.add(starttime);
-    			word.StartOffset = starttime;
+    			word.m_startOffsetTime = starttime;
+    			word.m_endOffsetTime = endtime;
     			wordStopOffset.add(endtime);
-    			wordStreams.add(word);
+    			wordset.add(word);
     		}
     	} // for each sentence
     	// add prosodic features...
