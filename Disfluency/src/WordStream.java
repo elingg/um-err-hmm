@@ -78,7 +78,7 @@ public class WordStream {
 					if(argp.m_verbose) {
 						System.out.println(word.m_word+"\t"+word.m_startOffsetTime+"\t"+word.m_endOffsetTime+"\t"+word.m_speaker);
 					}
-					br.write(word.m_startOffsetTime+"\t"+word.m_endOffsetTime+"\t"+word.m_speaker+"\t"+word.m_word+"\n");
+					br.write(word.m_startOffsetTime+"\n"+word.m_endOffsetTime+"\n"+word.m_speaker+"\n");
 				}
 				System.out.println("Processed "+srcfile.getPath()+" into interval file "+intervalfile.getPath());
 				br.flush();
