@@ -2,9 +2,10 @@
 
 public class CommandLineParser {
 	// from http://journals.ecs.soton.ac.uk/java/tutorial/java/cmdLineArgs/parsing.html
-	public boolean m_verbose;
+	public boolean m_verbose, m_writeintervals;
 	public String m_srcDir, m_wekaInputFile;
 	public Integer m_npregram, m_npostgram;
+	
 	public void parseArguments(String[] args) {
 		int i = 0;
 		String arg;
@@ -19,7 +20,10 @@ public class CommandLineParser {
 				System.out.println("verbose mode on");
 				m_verbose = true;
 			}
-
+			else if (arg.equals("-writeintervals")) {
+				System.out.println("Writing intervals...");
+				m_writeintervals = true;
+			}
 			// use this type of check for arguments that require arguments
 			else if (arg.equals("-dir")) {
 				if (i < args.length)
