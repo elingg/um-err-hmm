@@ -22,30 +22,18 @@ public class WordStream {
 //	HashSet<String> m_wordDict;
 	HashSet<String> m_labelDict;
 	Word m_empty;
-	boolean isWordPosFeatureActive() {
-		if(m_featureActive.contains("pos")) return true;
-		return false;
-	}
-	boolean isPrePosFeatureActive(int index) {
-		if(m_featureActive.contains(getPrePosString(index))) return true;
-		return false;
-	}
-	boolean isPostPosFeatureActive(int index) {
-	  if(m_featureActive.contains(getPostPosString(index))) return true;
-	  return false;
-	}
 	class SpeakerPair{
 		public String a;
 		public String b;
 	}
-	
 	public static void main(String[] args) {
 		System.out.println(TimeUtils.now());
 		
 		CommandLineParser argp = new CommandLineParser();
 		argp.parseArguments(args);
 
-		WordStream disfl = new WordStream(argp.m_npregram,argp.m_npostgram);
+		WordStream disfl = new WordStream(argp.m_npregram,argp.m_npostgram,
+				argp.m_nprev,argp.m_prevstlabel);
 		
 		// get training datafiles (get xml and wav files)
 		HashMap<String, SpeakerPair> xmlwavfiles = disfl.getTrainingFiles(argp.m_srcDir, argp.m_corpusType);	
@@ -78,7 +66,9 @@ public class WordStream {
 		xmlwav = xmlwavfiles.entrySet().iterator();
 		while(xmlwav.hasNext()) {
 			Map.Entry<String,SpeakerPair> entry = xmlwav.next();
-			System.out.println("Processing wav: "+entry.getKey());
+			if(argp.m_verbose) {
+				System.out.println("Processing wav: "+entry.getKey());
+			}
 			TreeSet<Word> wordset = new TreeSet<Word>(TimeOffset);
 			disfl.extractWords(entry.getValue().a, argp.m_verbose, wordset);
 			disfl.extractWords(entry.getValue().b, argp.m_verbose, wordset);
@@ -105,6 +95,7 @@ public class WordStream {
 				} catch(Exception e) {}
 			}
 			Object[] wordlist = wordset.toArray();
+			String prevlabel = "none";
 			for(int iw=0;iw<wordlist.length;iw++) {
 				Word currword = (Word)wordlist[iw];
     			Vector<String> features = new Vector<String>();
@@ -143,10 +134,21 @@ public class WordStream {
     					features.add(postword.m_POS);
     				}
     			}
+    			if(disfl.isnPrevUnclassifiedActive()) {
+    				features.add(Integer.valueOf(currword.m_wordsBeforeUnclassified).toString());
+    			}
+    			if(disfl.isPrevStatementUnitLabelActive()) {
+        			if(currword.m_endOfSentence) {
+        				features.add(prevlabel);
+        			} else {
+        				features.add("none");
+        			}
+    			}
 //    			System.out.printf("] ");
     			String senttype = "none";
     			if(currword.m_endOfSentence) {
     				senttype = currword.m_sentenceType;
+        			prevlabel = senttype;
     			}
     			features.add(senttype);
 //    			System.out.println(senttype);
@@ -168,7 +170,7 @@ public class WordStream {
 	static String getPostPosString(int index) {
 		return new String("pos_post").concat(String.valueOf(index));
 	}
-	public WordStream(int npregram, int npostgram) {
+	public WordStream(int npregram, int npostgram, boolean nprev, boolean prevstlabel) {
 		m_featureNames = new Vector<String>();
 		m_featureTypes = new Vector<String>();
 		m_POSDict = new HashSet<String>();
@@ -229,6 +231,16 @@ public class WordStream {
     		m_featureTypes.add("nominal"); 
     		m_featureActive.add(featname);
     	}
+    	if(nprev) {
+    		m_featureNames.add("nprev_unclassified"); 
+    		m_featureTypes.add("numeric"); 
+    		m_featureActive.add("nprev_unclassified");
+    	}
+    	if(prevstlabel) {
+    		m_featureNames.add("prevstlabel"); 
+    		m_featureTypes.add("nominal"); 
+    		m_featureActive.add("prevstlabel");
+    	}
     	// add prosodic features (as numerics)
 //		ProsodicFeaturesExtractor prosodic = new ProsodicFeaturesExtractor();
 //		Vector<String> pfnames = prosodic.getFeatureNames();
@@ -243,6 +255,26 @@ public class WordStream {
 		m_featureTypes.add("nominal");
 		m_featureActive.add("label");
 	}
+	boolean isWordPosFeatureActive() {
+		if(m_featureActive.contains("pos")) return true;
+		return false;
+	}
+	boolean isPrePosFeatureActive(int index) {
+		if(m_featureActive.contains(getPrePosString(index))) return true;
+		return false;
+	}
+	boolean isPostPosFeatureActive(int index) {
+	  if(m_featureActive.contains(getPostPosString(index))) return true;
+	  return false;
+	}
+	boolean isnPrevUnclassifiedActive() {
+		if(m_featureActive.contains("nprev_unclassified")) return true;
+		return false;
+	}
+	boolean isPrevStatementUnitLabelActive() {
+		if(m_featureActive.contains("prevstlabel")) return true;
+		return false;
+	}
 	
 	public void writeFeatureHeaders(WekaInput wi) {
 		for(int i=0; i<m_featureNames.size(); ++i) {
@@ -252,7 +284,7 @@ public class WordStream {
 			if(m_featureTypes.get(i)=="nominal") {
 				if(m_featureNames.get(i).startsWith("pos")) {
 					wi.writeFeatureHeaderForNominal(m_featureNames.get(i),m_POSDict);
-				} else if(m_featureNames.get(i).compareTo("label")==0) {
+				} else if(m_featureNames.get(i).endsWith("label")) {
 					wi.writeFeatureHeaderForNominal(m_featureNames.get(i),m_labelDict);
 				}
 			} else {
@@ -443,6 +475,7 @@ public class WordStream {
 
     			word.m_startOffsetTime = starttime;
     			word.m_endOffsetTime = endtime;
+    			word.m_wordsBeforeUnclassified = i;
     			wordset.add(word);
     		}
     	} // for each sentence
