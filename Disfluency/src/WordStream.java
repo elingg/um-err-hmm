@@ -22,6 +22,18 @@ public class WordStream {
 	HashSet<String> m_wordDict;
 	HashSet<String> m_labelDict;
 	Word m_empty;
+	boolean isWordPosFeatureActive() {
+		if(m_featureActive.contains("pos")) return true;
+		return false;
+	}
+	boolean isPrePosFeatureActive(int index) {
+		if(m_featureActive.contains(getPrePosString(index))) return true;
+		return false;
+	}
+	boolean isPostPosFeatureActive(int index) {
+	  if(m_featureActive.contains(getPostPosString(index))) return true;
+	  return false;
+	}
 	class SpeakerPair{
 		public String a;
 		public String b;
@@ -94,6 +106,9 @@ public class WordStream {
 			for(int iw=0;iw<wordlist.length;iw++) {
 				Word currword = (Word)wordlist[iw];
     			Vector<String> features = new Vector<String>();
+    			if(disfl.isWordPosFeatureActive()) {
+    				features.add(currword.m_POS);
+    			}
     			for(int ip=0; ip<argp.m_npregram; ip++) {
     				int preiw = iw - argp.m_npregram + ip;
     				Word preword = null;
@@ -101,6 +116,9 @@ public class WordStream {
     					preword = disfl.m_empty;
     				} else {
         				preword = (Word)wordlist[preiw];
+    				}
+    				if(disfl.isPrePosFeatureActive(ip)) {
+    					features.add(preword.m_POS);
     				}
     			}
     			for(int ip=0; ip<argp.m_npostgram; ip++) {
@@ -110,6 +128,9 @@ public class WordStream {
     					postword = disfl.m_empty;
     				} else {
         				postword = (Word)wordlist[postiw];
+    				}
+    				if(disfl.isPostPosFeatureActive(ip)) {
+    					features.add(postword.m_POS);
     				}
     			}
     			wi.writeData(features);
@@ -176,13 +197,13 @@ public class WordStream {
     		m_featureActive.add(featname);
     	}
     	// add prosodic features (as numerics)
-		ProsodicFeaturesExtractor prosodic = new ProsodicFeaturesExtractor();
-		Vector<String> pfnames = prosodic.getFeatureNames();
-	    for(String name : pfnames) {
-	    	m_featureNames.add(name);
-			m_featureTypes.add("numeric");
-    		m_featureActive.add(name);
-	    }
+//		ProsodicFeaturesExtractor prosodic = new ProsodicFeaturesExtractor();
+//		Vector<String> pfnames = prosodic.getFeatureNames();
+//	    for(String name : pfnames) {
+//	    	m_featureNames.add(name);
+//			m_featureTypes.add("numeric");
+//    		m_featureActive.add(name);
+//	    }
 
 	    // add the final label to the end...
 		m_featureNames.add("label"); 
