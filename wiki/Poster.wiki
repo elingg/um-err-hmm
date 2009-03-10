@@ -1,5 +1,4 @@
-
 * Slide 1
-  Image : garlic_cut.jpg ; 
-  Text : <a>it has a lot of garlic in it too does n't it<a> <b>i it does <b>
- *Classification <a> - question <b>  - statement
+  Image - garlic_cut.jpg ; 
+  Text - 'a' it has a lot of garlic in it too does n't it 'a' 'b' i it does 'b'
+ * Classification 'a' - question 'b'  - statement
