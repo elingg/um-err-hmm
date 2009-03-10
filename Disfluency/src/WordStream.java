@@ -48,7 +48,7 @@ public class WordStream {
 		WordStream disfl = new WordStream(argp.m_npregram,argp.m_npostgram);
 		
 		// get training datafiles (get xml and wav files)
-		HashMap<String, SpeakerPair> xmlwavfiles = disfl.getTrainingFiles(argp.m_srcDir);	
+		HashMap<String, SpeakerPair> xmlwavfiles = disfl.getTrainingFiles(argp.m_srcDir, argp.m_corpusType);	
 		
 //		System.out.println("Using "+argp.m_npregram+" pregrams and "+argp.m_npostgram+" postgrams as features");
 		System.out.println("Detected "+xmlwavfiles.size()+" wav-xml pairs under "+argp.m_srcDir);
@@ -250,7 +250,7 @@ public class WordStream {
 	    File[] files = txtdir.listFiles(filter);		
 	    return files;
 	}
-	public HashMap<String, SpeakerPair> getTrainingFiles(String dataDir) {
+	public HashMap<String, SpeakerPair> getTrainingFiles(String dataDir, String m_corpusType) {
 		// data/speech/dev1_wav
 		// data/speech/dev2_wav
 		// data/speech/eval_wav
@@ -267,8 +267,9 @@ public class WordStream {
 			String xmldir = entry.getKey();
 			String speechdir = entry.getValue();
 			File[] speechfiles = getFilesWithExtension(speechdir,"wav");
-
+			
 			for(File speechfile:speechfiles) {
+				if(m_corpusType.equalsIgnoreCase(speechfile.getName().split("\\.")[0].split("_")[0])){
 				String[] fields = speechfile.getName().split("\\.");
 				String xmlname = fields[0];
 				String xmlnamea="";
@@ -288,6 +289,31 @@ public class WordStream {
 				xmlwavfiles.put(speechfile.getAbsolutePath(), sp);
 				//			System.out.println(xmlfile.getAbsolutePath());
 				//			System.out.println(speechfile.getAbsolutePath());
+				}
+				else if(m_corpusType.equalsIgnoreCase("all"))
+				{
+					String[] fields = speechfile.getName().split("\\.");
+					String xmlname = fields[0];
+					String xmlnamea="";
+					String xmlnameb="";
+					xmlnamea = xmlname.concat(".a.parse.ftags.ag.xml");
+					xmlnamea = xmldir+"/"+xmlnamea;
+					xmlnameb = xmlname.concat(".b.parse.ftags.ag.xml");
+					xmlnameb = xmldir+"/"+xmlnameb;			
+
+					File xmlfilea = new File(xmlnamea);
+					File xmlfileb = new File(xmlnameb);
+					if(!xmlfilea.isFile() && !xmlfileb.isFile())
+						continue;
+					SpeakerPair sp= new SpeakerPair();
+					sp.a= xmlfilea.getAbsolutePath();
+					sp.b= xmlfileb.getAbsolutePath();
+					xmlwavfiles.put(speechfile.getAbsolutePath(), sp);
+					//			System.out.println(xmlfile.getAbsolutePath());
+					//			System.out.println(speechfile.getAbsolutePath());
+
+					
+				}
 			}	    
 		}	    
 		return xmlwavfiles;
