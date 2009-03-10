@@ -133,7 +133,11 @@ public class WordStream {
     					features.add(postword.m_POS);
     				}
     			}
-				features.add(currword.m_sentenceType);
+    			if(currword.m_endOfSentence) {
+    				features.add(currword.m_sentenceType);
+    			} else {
+    				features.add("none");
+    			}
     			wi.writeData(features);
 			}
 		}
@@ -375,9 +379,11 @@ public class WordStream {
     			Double endtime = sentence.getOffsetTimeForAnchor(ann.getStopAnchor());
     			
     			String sentenceType = new String("none");
+	   			word.m_endOfSentence = false;
     			if(i==wordanns.size()-1) { // if last word
     	   			sentenceType = sentence.getMetadata().getSentenceType();
         			// ... question, backchannel, statement
+    	   			word.m_endOfSentence = true;
     			}
     			word.m_sentenceType = sentence.getMetadata().getSentenceType();
     			m_labelDict.add(sentenceType);

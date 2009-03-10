@@ -6,4 +6,5 @@ public class Word {
 	Double m_endOffsetTime;
 	String m_sentenceType;
 	String m_speaker;
+	boolean m_endOfSentence;
 }
