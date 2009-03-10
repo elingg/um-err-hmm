@@ -132,8 +132,8 @@ public class WordStream {
     				if(disfl.isPostPosFeatureActive(ip)) {
     					features.add(postword.m_POS);
     				}
-    				features.add(currword.m_sentenceType);
     			}
+				features.add(currword.m_sentenceType);
     			wi.writeData(features);
 			}
 		}
