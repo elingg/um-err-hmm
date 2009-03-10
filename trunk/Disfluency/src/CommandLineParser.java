@@ -3,12 +3,13 @@
 public class CommandLineParser {
 	// from http://journals.ecs.soton.ac.uk/java/tutorial/java/cmdLineArgs/parsing.html
 	public boolean m_verbose, m_writeintervals;
-	public String m_srcDir, m_wekaInputFile;
+	public String m_srcDir, m_wekaInputFile, m_corpusType;
 	public Integer m_npregram, m_npostgram;
 	
 	public void parseArguments(String[] args) {
 		int i = 0;
 		String arg;
+		m_corpusType="all";
 		m_verbose = false;
 		m_srcDir = "";
 		m_wekaInputFile = "";
@@ -57,6 +58,13 @@ public class CommandLineParser {
 				if (m_verbose)
 					System.out.println("npostgram  = " + m_npostgram);
 			}
+			else if (arg.equals("-corpus")){
+				if (i < args.length)
+					m_corpusType = args[i++];
+				else
+					System.err.println("-corpus requires 'fsh' or 'sw' or 'all'");					
+			}
+				
 			// use this type of check for a series of flag arguments
 //			else {
 //				for (j = 1; j < arg.length(); j++) {
