@@ -19,7 +19,7 @@ public class WordStream {
 	Vector<String> m_featureTypes;
 	HashSet<String> m_featureActive;
 	HashSet<String> m_POSDict; // indexed by feature-name
-	HashSet<String> m_wordDict;
+//	HashSet<String> m_wordDict;
 	HashSet<String> m_labelDict;
 	Word m_empty;
 	boolean isWordPosFeatureActive() {
@@ -50,7 +50,7 @@ public class WordStream {
 		// get training datafiles (get xml and wav files)
 		HashMap<String, SpeakerPair> xmlwavfiles = disfl.getTrainingFiles(argp.m_srcDir, argp.m_corpusType);	
 		
-//		System.out.println("Using "+argp.m_npregram+" pregrams and "+argp.m_npostgram+" postgrams as features");
+		System.out.println("Using "+argp.m_npregram+" pregrams and "+argp.m_npostgram+" postgrams as features");
 		System.out.println("Detected "+xmlwavfiles.size()+" wav-xml pairs under "+argp.m_srcDir);
 		// create arff file
 		String wekafname = argp.m_wekaInputFile; 
@@ -65,11 +65,23 @@ public class WordStream {
 		// extract features from training files...
     	
 //		System.out.println("Building vocab: ");
+//		while(xmlwav.hasNext()) {
+//			Map.Entry<String,SpeakerPair> entry = xmlwav.next();
+//			TreeSet<Word> wordset = new TreeSet<Word>(TimeOffset);
+//			disfl.extractWords(entry.getValue().a, argp.m_verbose,wordset);
+//			disfl.extractWords(entry.getValue().b, argp.m_verbose,wordset);
+//		}
+		System.out.println("Writing out features to "+argp.m_wekaInputFile+" ...");
+		// This pass, dictionary is built, so write it out...
+		disfl.writeFeatureHeaders(wi); // delay writing to here since we may need nominal values
+    	wi.startDataWrite();
+		xmlwav = xmlwavfiles.entrySet().iterator();
 		while(xmlwav.hasNext()) {
 			Map.Entry<String,SpeakerPair> entry = xmlwav.next();
+			System.out.println("Processing wav: "+entry.getKey());
 			TreeSet<Word> wordset = new TreeSet<Word>(TimeOffset);
-			disfl.extractWords(entry.getValue().a, argp.m_verbose,wordset);
-			disfl.extractWords(entry.getValue().b, argp.m_verbose,wordset);
+			disfl.extractWords(entry.getValue().a, argp.m_verbose, wordset);
+			disfl.extractWords(entry.getValue().b, argp.m_verbose, wordset);
 			if(argp.m_writeintervals) {
 				File srcfile = new File(entry.getValue().a);
 				String[] fields = srcfile.getName().split("\\.");
@@ -92,25 +104,18 @@ public class WordStream {
 					br.close();
 				} catch(Exception e) {}
 			}
-		}
-		// This pass, dictionary is built, so write it out...
-		disfl.writeFeatureHeaders(wi); // delay writing to here since we may need nominal values
-    	wi.startDataWrite();
-		xmlwav = xmlwavfiles.entrySet().iterator();
-		while(xmlwav.hasNext()) {
-			Map.Entry<String,SpeakerPair> entry = xmlwav.next();
-			TreeSet<Word> wordset = new TreeSet<Word>(TimeOffset);
-			disfl.extractWords(entry.getValue().a, argp.m_verbose, wordset);
-			disfl.extractWords(entry.getValue().b, argp.m_verbose, wordset);
 			Object[] wordlist = wordset.toArray();
 			for(int iw=0;iw<wordlist.length;iw++) {
 				Word currword = (Word)wordlist[iw];
     			Vector<String> features = new Vector<String>();
     			if(disfl.isWordPosFeatureActive()) {
+//    				System.out.printf("[%s",currword.m_word);
+//    				System.out.printf(" %s]",currword.m_POS);
     				features.add(currword.m_POS);
     			}
+//    			System.out.printf("[");
     			for(int ip=0; ip<argp.m_npregram; ip++) {
-    				int preiw = iw - argp.m_npregram + ip;
+    				int preiw = iw - 1 - ip;
     				Word preword = null;
     				if(preiw >= wordlist.length || preiw <0) {
     					preword = disfl.m_empty;
@@ -118,9 +123,12 @@ public class WordStream {
         				preword = (Word)wordlist[preiw];
     				}
     				if(disfl.isPrePosFeatureActive(ip)) {
+//    					System.out.printf(" %s", preword.m_word);
+//    					System.out.printf(" %s", preword.m_POS);
     					features.add(preword.m_POS);
     				}
     			}
+//    			System.out.printf("] [");
     			for(int ip=0; ip<argp.m_npostgram; ip++) {
     				int postiw = iw + 1 + ip;
     				Word postword = null;
@@ -130,14 +138,18 @@ public class WordStream {
         				postword = (Word)wordlist[postiw];
     				}
     				if(disfl.isPostPosFeatureActive(ip)) {
+//    					System.out.printf(" %s",postword.m_word);
+//    					System.out.printf(" %s",postword.m_POS);
     					features.add(postword.m_POS);
     				}
     			}
+//    			System.out.printf("] ");
+    			String senttype = "none";
     			if(currword.m_endOfSentence) {
-    				features.add(currword.m_sentenceType);
-    			} else {
-    				features.add("none");
+    				senttype = currword.m_sentenceType;
     			}
+    			features.add(senttype);
+//    			System.out.println(senttype);
     			wi.writeData(features);
 			}
 		}
@@ -160,15 +172,31 @@ public class WordStream {
 		m_featureNames = new Vector<String>();
 		m_featureTypes = new Vector<String>();
 		m_POSDict = new HashSet<String>();
-		m_wordDict = new HashSet<String>();
+//		m_wordDict = new HashSet<String>();
+		
+		m_POSDict.add("RB"); m_POSDict.add("UH"); m_POSDict.add("WP$"); m_POSDict.add("CD");
+		m_POSDict.add("FW"); m_POSDict.add("JJ"); m_POSDict.add("VBG"); m_POSDict.add("MD"); 
+		m_POSDict.add("NN"); m_POSDict.add("VBP"); m_POSDict.add("HVS"); m_POSDict.add("WRB");
+		m_POSDict.add("RP"); m_POSDict.add("IN"); m_POSDict.add("VBD"); m_POSDict.add("SYM");
+		m_POSDict.add("TO"); m_POSDict.add(":"); m_POSDict.add("VBN"); m_POSDict.add("NNPS"); 
+		m_POSDict.add("RBR"); m_POSDict.add("DT"); m_POSDict.add("VB"); m_POSDict.add("VBZ"); 
+		m_POSDict.add("NNS"); m_POSDict.add("XX"); m_POSDict.add("JJS"); m_POSDict.add("RBS"); 
+		m_POSDict.add("NNP"); m_POSDict.add("POS"); m_POSDict.add("CC"); m_POSDict.add("PRP$"); 
+		m_POSDict.add("JJR"); m_POSDict.add("BES"); m_POSDict.add("PDT"); m_POSDict.add("$POS"); 
+		m_POSDict.add("WP"); m_POSDict.add("WDT"); m_POSDict.add("EX"); m_POSDict.add("PRP"); 
+
 		m_featureActive = new HashSet<String>();
+
 		m_labelDict = new HashSet<String>();
+		m_labelDict.add("statement"); m_labelDict.add("none"); m_labelDict.add("backchannel"); 
+		m_labelDict.add("incomplete"); m_labelDict.add("question");
+
 		m_empty = new Word();
 		m_empty.m_POS = "$POS";
 		m_empty.m_word = "$";
 		
 		m_POSDict.add(m_empty.m_POS);
-		m_wordDict.add(m_empty.m_word);
+//		m_wordDict.add(m_empty.m_word);
 		
 		m_npregram = npregram; m_npostgram = npostgram; 
 		
@@ -393,12 +421,11 @@ public class WordStream {
     	    	//   for each word
     			Annotation ann = wordanns.get(i);
     			//  get word
-    			word.m_word=words.get(i);
     			word.m_word = words.get(i);
-    			m_wordDict.add(words.get(i));
+//    			m_wordDict.add(words.get(i));
     	    	//  get POS tag for word
     			word.m_POS = ann.getTag();
-    			m_POSDict.add(ann.getTag());
+    			assert(m_POSDict.contains(ann.getTag()));
 
     			//    get times that word spans
     			Double starttime = sentence.getOffsetTimeForAnchor(ann.getStartAnchor());
@@ -407,12 +434,12 @@ public class WordStream {
     			String sentenceType = new String("none");
 	   			word.m_endOfSentence = false;
     			if(i==wordanns.size()-1) { // if last word
-    	   			sentenceType = sentence.getMetadata().getSentenceType();
-        			// ... question, backchannel, statement
-    	   			word.m_endOfSentence = true;
+    				sentenceType = sentence.getMetadata().getSentenceType();
+    				// ... question, backchannel, statement
+    				word.m_endOfSentence = true;
     			}
     			word.m_sentenceType = sentence.getMetadata().getSentenceType();
-    			m_labelDict.add(sentenceType);
+    			assert(m_labelDict.contains(sentenceType));
 
     			word.m_startOffsetTime = starttime;
     			word.m_endOffsetTime = endtime;

@@ -6,12 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-//import weka.classifiers.functions.SMO;
-//import weka.classifiers.Classifier;
-//import weka.experiment.Experiment;
-
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.MultiHashtable;
-
 // main driver class...
 public class Disfluency {
 	int m_npregram, m_npostgram;
