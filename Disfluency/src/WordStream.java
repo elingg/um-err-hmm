@@ -112,7 +112,7 @@ public class WordStream {
     			for(int ip=0; ip<argp.m_npregram; ip++) {
     				int preiw = iw - argp.m_npregram + ip;
     				Word preword = null;
-    				if(preiw >= wordlist.length) {
+    				if(preiw >= wordlist.length || preiw <0) {
     					preword = disfl.m_empty;
     				} else {
         				preword = (Word)wordlist[preiw];
@@ -123,8 +123,8 @@ public class WordStream {
     			}
     			for(int ip=0; ip<argp.m_npostgram; ip++) {
     				int postiw = iw + 1 + ip;
-    				Word postword = (Word)wordlist[postiw];
-    				if(postiw>= wordlist.length) {
+    				Word postword = null;
+    				if(postiw>= wordlist.length || postiw < 0) {
     					postword = disfl.m_empty;
     				} else {
         				postword = (Word)wordlist[postiw];
@@ -132,6 +132,7 @@ public class WordStream {
     				if(disfl.isPostPosFeatureActive(ip)) {
     					features.add(postword.m_POS);
     				}
+    				features.add(currword.m_sentenceType);
     			}
     			wi.writeData(features);
 			}
@@ -217,7 +218,7 @@ public class WordStream {
 				continue;
 			}
 			if(m_featureTypes.get(i)=="nominal") {
-				if(m_featureNames.get(i).endsWith("pos")) {
+				if(m_featureNames.get(i).startsWith("pos")) {
 					wi.writeFeatureHeaderForNominal(m_featureNames.get(i),m_POSDict);
 				} else if(m_featureNames.get(i).compareTo("label")==0) {
 					wi.writeFeatureHeaderForNominal(m_featureNames.get(i),m_labelDict);
@@ -325,6 +326,7 @@ public class WordStream {
     					(sub.compareTo(".")==0) ||
     					(sub.compareTo(",")==0) ||
     					(sub.compareTo("?")==0) ||
+    					(sub.compareTo("+")==0) ||
     					(sub.startsWith("[")&&sub.endsWith("]"))) {
     				continue;
     			}
@@ -335,7 +337,8 @@ public class WordStream {
     			Annotation ann = anns.get(i);
     			if((ann.getType().compareTo("word")!=0) || 
     					(ann.getTag().compareTo(".")==0) || 
-    					(ann.getTag().compareTo(",")==0)) {
+    					(ann.getTag().compareTo("DISFL-IP")==0) ||
+					(ann.getTag().compareTo(",")==0)) {
     				continue;
     			}
     			wordanns.add(ann);
