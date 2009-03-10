@@ -7,4 +7,5 @@ public class Word {
 	String m_sentenceType;
 	String m_speaker;
 	boolean m_endOfSentence;
+	int m_wordsBeforeUnclassified;
 }
