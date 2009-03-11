@@ -24,6 +24,7 @@ public class CommandLineParser {
 		m_wekaInputFile = "";
 		m_npregram = m_npostgram = 1;
 		m_nprev = false;
+		System.out.println("All features: " + m_profeatureNames.toString());
 		while (i < args.length && args[i].startsWith("-")) {
 			arg = args[i++];
 			// use this type of check for "wordy" arguments
@@ -33,7 +34,8 @@ public class CommandLineParser {
 			else if (arg.equals("-nprev")) {
 				m_nprev = true;
 			}
-			else if(m_profeatureNames.contains(arg)) {
+			else if(m_profeatureNames.contains(arg.substring(1))) {
+				System.out.println("\t. Using prosodic feature: "+arg.substring(1));
 				m_profeatures.add(arg);
 			}
 			else if (arg.equals("-prevstlabel")) {
@@ -78,12 +80,14 @@ public class CommandLineParser {
 					System.err.println("\t. -corpus requires 'fsh' or 'sw' or 'all'");					
 			}
 		}
-		if(m_profeatures.size()==0) {
-			for(String f:m_profeatureNames) {
-				m_profeatures.add(f);
+		if(m_prosodic) {
+			if(m_profeatures.size()==0) {
+				System.out.println("\t. Using all prosodic features");
+				for(String f:m_profeatureNames) {
+					m_profeatures.add(f);
+				}
 			}
 		}
-
 		if(m_verbose) {
 			System.out.println("\t. Verbose mode on");
 		}
@@ -97,9 +101,6 @@ public class CommandLineParser {
 		}
 		if(m_prevstlabel) {
 			System.out.println("\t. Using previous statement label as a feature");
-		}
-		if(m_prosodic) {
-			System.out.println("\t. Using prosodic features");
 		}
 		if (i != args.length)
 			System.err.println("Usage: Disfluency.java [-verbose] [-npostgram n]"+
