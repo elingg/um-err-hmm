@@ -1,6 +1,6 @@
 form 
-     sentence wave_file ../../../corpus/LDC2009T01/CTSTreebankWithStructuralMetadata/data/speech/dev1_wav/fsh_60262.wav
-     sentence interval_file ../../../corpus/LDC2009T01/CTSTreebankWithStructuralMetadata/data/text/dev1_int/fsh_60262.interval.txt
+     sentence wave_file ../corpus/LDC2009T01/CTSTreebankWithStructuralMetadata/data/speech/dev1_wav/sw_47411.wav
+     sentence interval_file ../corpus/LDC2009T01/CTSTreebankWithStructuralMetadata/data/text/dev1_int/sw_47411.interval.txt
 endform
 
 	counta = 0
@@ -83,9 +83,6 @@ endform
 		path$ = left$ (interval_file$, (indexOfDir-1))
 		endpath$ = right$ (interval_file$, (indexOfDir-49))
 		path$ = path$ + "feat/" + endpath$
-
-
-		path$ = "features.txt"
 		
 		if newlabel2$ = "a"
 			if iteration = 1
