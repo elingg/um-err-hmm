@@ -1,3 +1,6 @@
+import java.util.TreeSet;
+import java.util.Vector;
+
 
 
 public class CommandLineParser {
@@ -6,7 +9,12 @@ public class CommandLineParser {
 	public String m_srcDir, m_wekaInputFile, m_corpusType;
 	public Integer m_npregram, m_npostgram;
 	public boolean m_nprev, m_prevstlabel, m_prosodic;
-	
+	public Vector<String> m_profeatureNames;
+	public TreeSet<String> m_profeatures;
+	public CommandLineParser() {
+		m_profeatureNames = (Vector<String>) new ProsodicFeaturesExtractor().m_featureNames.clone();
+		m_profeatures = new TreeSet<String>();
+	}
 	public void parseArguments(String[] args) {
 		int i = 0;
 		String arg;
@@ -24,6 +32,9 @@ public class CommandLineParser {
 			}
 			else if (arg.equals("-nprev")) {
 				m_nprev = true;
+			}
+			else if(m_profeatureNames.contains(arg)) {
+				m_profeatures.add(arg);
 			}
 			else if (arg.equals("-prevstlabel")) {
 				m_prevstlabel = true;
@@ -67,6 +78,12 @@ public class CommandLineParser {
 					System.err.println("\t. -corpus requires 'fsh' or 'sw' or 'all'");					
 			}
 		}
+		if(m_profeatures.size()==0) {
+			for(String f:m_profeatureNames) {
+				m_profeatures.add(f);
+			}
+		}
+
 		if(m_verbose) {
 			System.out.println("\t. Verbose mode on");
 		}
