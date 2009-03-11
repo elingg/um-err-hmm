@@ -36,7 +36,7 @@ public class CommandLineParser {
 			}
 			else if(m_profeatureNames.contains(arg.substring(1))) {
 				System.out.println("\t. Using prosodic feature: "+arg.substring(1));
-				m_profeatures.add(arg);
+				m_profeatures.add(arg.substring(1));
 			}
 			else if (arg.equals("-prevstlabel")) {
 				m_prevstlabel = true;
