@@ -1,6 +1,6 @@
 form 
-     sentence wave_file test.wav
-     sentence interval_file test.txt
+     sentence wave_file ../corpus/LDC2009T01/CTSTreebankWithStructuralMetadata/data/speech/dev1_wav/fsh_60262.wav
+     sentence interval_file ../corpus/LDC2009T01/CTSTreebankWithStructuralMetadata/data/text/dev1_int/fsh_60262.interval.txt
 endform
 
 	counta = 0
@@ -27,7 +27,9 @@ endform
 
 	file$ < 'interval_file$'
 	leftoverlength = length (file$)
-	while leftoverlength  > 75
+	while leftoverlength  > 2
+
+		#printline 'leftoverlength'
 		
  	      	firstnewline = index (file$, newline$)
 		newlabel$ = left$ (file$, (firstnewline - 1))
