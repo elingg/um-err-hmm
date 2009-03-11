@@ -157,13 +157,15 @@ public class WordStream {
     			}
     			if(argp.m_prosodic) {
     				Vector<Double> wordprosfeats = prosfeatures.get(currword.m_startOffsetTime);
-    				double myinterval = currword.m_endOffsetTime-currword.m_startOffsetTime;
-    				double lizinterval = wordprosfeats.get(9)*1000;
-    				assert(myinterval==lizinterval);
+//    				double myinterval = currword.m_endOffsetTime-currword.m_startOffsetTime;
+//    				double lizinterval = wordprosfeats.get(9)*1000;
+//    				assert(myinterval==lizinterval);
 //    				System.out.println("my interval: "+myinterval+", liz interval: "+lizinterval);
     				assert(wordprosfeats!=null);
     				for(int ipros=0; ipros<wordprosfeats.size(); ipros++) {
-    					features.add(wordprosfeats.get(ipros).toString());
+            			if(disfl.m_featureActive.contains(prosodicext.m_featureNames.get(ipros))) {
+            				features.add(wordprosfeats.get(ipros).toString());
+            			}
     				}
     			}
     			features.add(senttype);
