@@ -33,7 +33,8 @@ public class WordStream {
 		argp.parseArguments(args);
 
 		WordStream disfl = new WordStream(argp.m_npregram,argp.m_npostgram,
-				argp.m_nprev,argp.m_prevstlabel);
+				argp.m_nprev,argp.m_prevstlabel, argp.m_prosodic);
+		ProsodicFeaturesExtractor prosodicext = new ProsodicFeaturesExtractor();
 		
 		// get training datafiles (get xml and wav files)
 		HashMap<String, SpeakerPair> xmlwavfiles = disfl.getTrainingFiles(argp.m_srcDir, argp.m_corpusType);	
@@ -96,6 +97,11 @@ public class WordStream {
 			}
 			Object[] wordlist = wordset.toArray();
 			String prevlabel = "none";
+			HashMap<Double, Vector<Double>>  prosfeatures = new HashMap<Double, Vector<Double>>();
+			if(argp.m_prosodic) {
+				prosfeatures = prosodicext.readFeatures(entry.getKey());
+			}
+
 			for(int iw=0;iw<wordlist.length;iw++) {
 				Word currword = (Word)wordlist[iw];
     			Vector<String> features = new Vector<String>();
@@ -150,6 +156,13 @@ public class WordStream {
     				senttype = currword.m_sentenceType;
         			prevlabel = senttype;
     			}
+    			if(argp.m_prosodic) {
+    				Vector<Double> wordprosfeats = prosfeatures.get(currword.m_startOffsetTime);
+    				assert(wordprosfeats!=null);
+    				for(int ipros=0; ipros<wordprosfeats.size(); ipros++) {
+    					features.add(wordprosfeats.get(ipros).toString());
+    				}
+    			}
     			features.add(senttype);
 //    			System.out.println(senttype);
     			wi.writeData(features);
@@ -170,7 +183,7 @@ public class WordStream {
 	static String getPostPosString(int index) {
 		return new String("pos_post").concat(String.valueOf(index));
 	}
-	public WordStream(int npregram, int npostgram, boolean nprev, boolean prevstlabel) {
+	public WordStream(int npregram, int npostgram, boolean nprev, boolean prevstlabel, boolean prosodic) {
 		m_featureNames = new Vector<String>();
 		m_featureTypes = new Vector<String>();
 		m_POSDict = new HashSet<String>();
@@ -241,15 +254,16 @@ public class WordStream {
     		m_featureTypes.add("nominal"); 
     		m_featureActive.add("prevstlabel");
     	}
-    	// add prosodic features (as numerics)
-//		ProsodicFeaturesExtractor prosodic = new ProsodicFeaturesExtractor();
-//		Vector<String> pfnames = prosodic.getFeatureNames();
-//	    for(String name : pfnames) {
-//	    	m_featureNames.add(name);
-//			m_featureTypes.add("numeric");
-//    		m_featureActive.add(name);
-//	    }
-
+    	if(prosodic) {
+    		// add prosodic features (as numerics)
+    		ProsodicFeaturesExtractor prosodicext = new ProsodicFeaturesExtractor();
+    		Vector<String> pfnames = prosodicext.getFeatureNames();
+    		for(String name : pfnames) {
+    			m_featureNames.add(name);
+    			m_featureTypes.add("numeric");
+    			m_featureActive.add(name);
+    		}
+    	}
 	    // add the final label to the end...
 		m_featureNames.add("label"); 
 		m_featureTypes.add("nominal");
