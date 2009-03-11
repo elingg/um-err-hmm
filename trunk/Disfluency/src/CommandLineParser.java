@@ -5,7 +5,7 @@ public class CommandLineParser {
 	public boolean m_verbose, m_writeintervals;
 	public String m_srcDir, m_wekaInputFile, m_corpusType;
 	public Integer m_npregram, m_npostgram;
-	public boolean m_nprev, m_prevstlabel;
+	public boolean m_nprev, m_prevstlabel, m_prosodic;
 	
 	public void parseArguments(String[] args) {
 		int i = 0;
@@ -27,6 +27,9 @@ public class CommandLineParser {
 			}
 			else if (arg.equals("-prevstlabel")) {
 				m_prevstlabel = true;
+			}
+			else if (arg.equals("-prosodic")) {
+				m_prosodic = true;
 			}
 			else if (arg.equals("-writeintervals")) {
 				System.out.println("\t. Writing intervals...");
@@ -78,9 +81,12 @@ public class CommandLineParser {
 		if(m_prevstlabel) {
 			System.out.println("\t. Using previous statement label as a feature");
 		}
+		if(m_prosodic) {
+			System.out.println("\t. Using prosodic features");
+		}
 		if (i != args.length)
 			System.err.println("Usage: Disfluency.java [-verbose] [-npostgram n]"+
 					" [-npregram n] [-dir dirname] [-wekafile fname]"+ 
-					" [-writeintervals] [-corpus all|fsh|sw] [-nprev]");
+					" [-writeintervals] [-corpus all|fsh|sw] [-nprev] [-prosodic]");
 	}
 }
