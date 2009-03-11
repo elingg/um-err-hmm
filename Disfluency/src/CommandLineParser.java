@@ -24,7 +24,6 @@ public class CommandLineParser {
 		m_wekaInputFile = "";
 		m_npregram = m_npostgram = 1;
 		m_nprev = false;
-		System.out.println("All features: " + m_profeatureNames.toString());
 		while (i < args.length && args[i].startsWith("-")) {
 			arg = args[i++];
 			// use this type of check for "wordy" arguments
