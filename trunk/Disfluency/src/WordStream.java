@@ -32,8 +32,7 @@ public class WordStream {
 		CommandLineParser argp = new CommandLineParser();
 		argp.parseArguments(args);
 
-		WordStream disfl = new WordStream(argp.m_npregram,argp.m_npostgram,
-				argp.m_nprev,argp.m_prevstlabel, argp.m_prosodic);
+		WordStream disfl = new WordStream(argp);
 		ProsodicFeaturesExtractor prosodicext = new ProsodicFeaturesExtractor();
 		
 		// get training datafiles (get xml and wav files)
@@ -158,6 +157,10 @@ public class WordStream {
     			}
     			if(argp.m_prosodic) {
     				Vector<Double> wordprosfeats = prosfeatures.get(currword.m_startOffsetTime);
+    				double myinterval = currword.m_endOffsetTime-currword.m_startOffsetTime;
+    				double lizinterval = wordprosfeats.get(9)*1000;
+    				assert(myinterval==lizinterval);
+//    				System.out.println("my interval: "+myinterval+", liz interval: "+lizinterval);
     				assert(wordprosfeats!=null);
     				for(int ipros=0; ipros<wordprosfeats.size(); ipros++) {
     					features.add(wordprosfeats.get(ipros).toString());
@@ -183,7 +186,7 @@ public class WordStream {
 	static String getPostPosString(int index) {
 		return new String("pos_post").concat(String.valueOf(index));
 	}
-	public WordStream(int npregram, int npostgram, boolean nprev, boolean prevstlabel, boolean prosodic) {
+	public WordStream(CommandLineParser argp) {
 		m_featureNames = new Vector<String>();
 		m_featureTypes = new Vector<String>();
 		m_POSDict = new HashSet<String>();
@@ -213,7 +216,7 @@ public class WordStream {
 		m_POSDict.add(m_empty.m_POS);
 //		m_wordDict.add(m_empty.m_word);
 		
-		m_npregram = npregram; m_npostgram = npostgram; 
+		m_npregram = argp.m_npregram; m_npostgram = argp.m_npostgram; 
 		
 		// word...
 		m_featureNames.add("word"); 
@@ -244,24 +247,26 @@ public class WordStream {
     		m_featureTypes.add("nominal"); 
     		m_featureActive.add(featname);
     	}
-    	if(nprev) {
+    	if(argp.m_nprev) {
     		m_featureNames.add("nprev_unclassified"); 
     		m_featureTypes.add("numeric"); 
     		m_featureActive.add("nprev_unclassified");
     	}
-    	if(prevstlabel) {
+    	if(argp.m_prevstlabel) {
     		m_featureNames.add("prevstlabel"); 
     		m_featureTypes.add("nominal"); 
     		m_featureActive.add("prevstlabel");
     	}
-    	if(prosodic) {
+    	if(argp.m_prosodic) {
     		// add prosodic features (as numerics)
     		ProsodicFeaturesExtractor prosodicext = new ProsodicFeaturesExtractor();
     		Vector<String> pfnames = prosodicext.getFeatureNames();
     		for(String name : pfnames) {
     			m_featureNames.add(name);
     			m_featureTypes.add("numeric");
-    			m_featureActive.add(name);
+    			if(argp.m_profeatures.contains(name)) {
+    				m_featureActive.add(name);
+    			}
     		}
     	}
 	    // add the final label to the end...
