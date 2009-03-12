@@ -1,4 +1,4 @@
-
+// adding
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -21,8 +21,6 @@ public class WordStream {
 	HashSet<String> m_POSDict; // indexed by feature-name
 //	HashSet<String> m_wordDict;
 	HashSet<String> m_labelDict;
-	HashSet<String> m_SpeakerDict; 
-
 	Word m_empty;
 	class SpeakerPair{
 		public String a;
@@ -163,46 +161,13 @@ public class WordStream {
 //    				double lizinterval = wordprosfeats.get(9)*1000;
 //    				assert(myinterval==lizinterval);
 //    				System.out.println("my interval: "+myinterval+", liz interval: "+lizinterval);
-									
-					assert(wordprosfeats!=null);
+    				assert(wordprosfeats!=null);
     				for(int ipros=0; ipros<wordprosfeats.size(); ipros++) {
             			if(disfl.m_featureActive.contains(prosodicext.m_featureNames.get(ipros))) {
             				features.add(wordprosfeats.get(ipros).toString());
             			}
     				}
     			}
-				
-				if((!currword.m_endOfSentence))
-				 {
-					 features.add("Current"); //	(second type of classification on the data removing nones in order to differentiate questions and statements) 				 }
-				 else
-				 {
-					 String currSpeaker = currword.m_speaker;
-					 if(iw==(wordlist.length-1))
-					 {
-						 features.add("No");
-					 }
-					 else
-					 {
-						 Word nextword = (Word)wordlist[iw+1];
-						 Vector<Double> wordprosfeats = prosfeatures.get(currword.m_startOffsetTime);
-						 Vector<Double> wordprosfeatsnext = prosfeatures.get(nextword.m_startOffsetTime);
-						 String nextSpeaker = nextword.m_speaker;
-						 if(currSpeaker.equals(nextSpeaker))
-						 {
-						
-							 assert(wordprosfeats.get(12)==wordprosfeatsnext.get(12));
-							 features.add("No");
-						 }
-						 else
-						 {
-							 assert(wordprosfeats.get(12)!=wordprosfeatsnext.get(12));
-							 features.add("Yes");
-						 }
-					 }
-				 }
-				
-				
     			features.add(senttype);
 //    			System.out.println(senttype);
     			wi.writeData(features);
@@ -306,15 +271,6 @@ public class WordStream {
     			}
     		}
     	}
-		
-		m_featureNames.add("nextSpeakerNotEqualtoCurrSpeaker");
-		m_featureTypes.add("nominal");
-		m_featureActive.add("nextSpeakerNotEqualtoCurrSpeaker");
-		m_SpeakerDict = new HashSet<String>();
-		m_SpeakerDict.add("Yes");
-		m_SpeakerDict.add("No");
-		m_SpeakerDict.add("Current");
-
 	    // add the final label to the end...
 		m_featureNames.add("label"); 
 		m_featureTypes.add("nominal");
@@ -351,10 +307,6 @@ public class WordStream {
 					wi.writeFeatureHeaderForNominal(m_featureNames.get(i),m_POSDict);
 				} else if(m_featureNames.get(i).endsWith("label")) {
 					wi.writeFeatureHeaderForNominal(m_featureNames.get(i),m_labelDict);
-				}
-				else if(m_featureNames.get(i).equals("nextSpeakerNotEqualtoCurrSpeaker"))
-				{
-					wi.writeFeatureHeaderForNominal(m_featureNames.get(i),m_SpeakerDict);
 				}
 			} else {
 				wi.writeFeatureHeader(m_featureNames.get(i), m_featureTypes.get(i));
