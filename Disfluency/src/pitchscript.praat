@@ -1,6 +1,6 @@
 form 
-     sentence wave_file ../corpus/LDC2009T01/CTSTreebankWithStructuralMetadata/data/speech/dev1_wav/sw_47411.wav
-     sentence interval_file ../corpus/LDC2009T01/CTSTreebankWithStructuralMetadata/data/text/dev1_int/sw_47411.interval.txt
+     sentence wave_file ../corpus/LDC2009T01/CTSTreebankWithStructuralMetadata/data/speech/dev1_wav/fsh_60262.wav
+     sentence interval_file ../corpus/LDC2009T01/CTSTreebankWithStructuralMetadata/data/text/dev1_int/fsh_60262.interval.txt
 endform
 
 	counta = 0
@@ -62,6 +62,10 @@ endform
 		f0 = (pitchwordmean -pitchoverallmin)/pitchmean
 		f0notnormalized = 	(pitchwordmean -pitchoverallmin)	
 
+		beginpitch = Get value at time... newlabel Hertz Linear
+		endpitch = Get value at time... newlabel1 Hertz Linear
+		endminusbeginpitch = (endpitch - beginpitch)/pitchmean
+		endminusbeginpitchnotnormalized = (endpitch - beginpitch)
 
 		select Intensity 'soundname$'
 		intensity = Get mean... newlabel newlabel1 energy
@@ -99,6 +103,7 @@ endform
 			f0speaker = (pitchwordmean -pitchoverallmin) / pitcha
 			energyspeaker =  intensity / intensitya
 			pausespeaker = pause / intervala
+			endminusbeginpitchspeaker = endminusbeginpitchnotnormalized / pitcha
 			endif
 		endif
 
@@ -117,6 +122,7 @@ endform
 			f0speaker = (pitchwordmean -pitchoverallmin) / pitchb
 			energyspeaker =  intensity / intensityb
 			pausespeaker = pause / intervalb
+			endminusbeginpitchspeaker = endminusbeginpitchnotnormalized / pitcha
 			endif
 		endif
 
@@ -146,6 +152,12 @@ endform
 		fileappend 'path$' 'pause'
 		fileappend 'path$' 'newline$'
 		fileappend 'path$' 'pausespeaker'
+		fileappend 'path$' 'newline$'
+		fileappend 'path$' 'endminusbeginpitch'
+		fileappend 'path$' 'newline$'
+		fileappend 'path$' 'endminusbeginpitchspeaker'
+		fileappend 'path$' 'newline$'
+		fileappend 'path$' 'endminusbeginpitchnotnormalized'
 		fileappend 'path$' 'newline$'
 		if newlabel2$ = "a"
 		fileappend 'path$' 'pitcha'
